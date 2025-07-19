@@ -7,12 +7,12 @@ const Home = () => {
     const navItems = <>
 
         <li> <NavLink> Home</NavLink> </li>
-        <li> <NavLink> Add Articles</NavLink> </li>
-        <li> <NavLink> All Articles</NavLink> </li>
-        <li> <NavLink> Subscription</NavLink> </li>
-        <li> <NavLink> Dashboard</NavLink> </li>
-        <li> <NavLink> My Articles</NavLink> </li>
-        <li> <NavLink> Premium Articles</NavLink> </li>
+        <li> <NavLink to="/addArticle"> Add Articles</NavLink> </li>
+        <li> <NavLink to="/allArticle"> All Articles</NavLink> </li>
+        <li> <NavLink to="/Dashboard"> Subscription</NavLink> </li>
+        <li> <NavLink to="/MyArticles"> Dashboard</NavLink> </li>
+        <li> <NavLink to="/premiumArticles"> My Articles</NavLink> </li>
+        <li> <NavLink to="/subscription"> Premium Articles</NavLink> </li>
     </>
 
     return (
@@ -41,7 +41,7 @@ const Home = () => {
                 </ul>
             </div>
             <div className="navbar-end">
-                <a className="btn">Button</a>
+                <a className="btn">Login</a>
             </div>
         </div>
     );
