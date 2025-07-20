@@ -1,33 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Set your backend base URL here if needed
+axios.defaults.baseURL = 'http://localhost:5000';
 
 const AllArticlesDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
+    const [article, setArticle] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            try {
+                setLoading(true);
+                const res = await axios.get(`/articles/${id}`);
+                setArticle(res.data);
+
+                await axios.patch(`/articles/${id}/views`);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+                setError('Failed to load article details.');
+                setLoading(false);
+            }
+        };
+
+        fetchArticle();
+    }, [id]);
+
+    if (loading) return <div className="text-center mt-20 text-green-700">Loading article details...</div>;
+    if (error) return <div className="text-center mt-20 text-red-600">{error}</div>;
+    if (!article) return <div className="text-center mt-20 text-green-700">Article not found.</div>;
+
     return (
         <div className="max-w-4xl mx-auto p-6 bg-green-50 rounded-lg shadow-md mt-10">
-            <h1 className="text-4xl font-bold mb-6 text-green-900">
-                Article Details - ID: {id}
-            </h1>
+            <h1 className="text-4xl font-bold mb-6 text-green-900">{article.title}</h1>
 
             <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="h-64 bg-green-100 rounded-md flex items-center justify-center mb-6">
-                    {/* Placeholder for article image */}
-                    <span className="text-green-400 italic text-lg">Image will appear here</span>
-                </div>
-
-                <h2 className="text-2xl font-semibold text-green-800 mb-4">
-                    Article Title Placeholder
-                </h2>
+                <img
+                    src={article.image}
+                    alt={article.title}
+                    className="h-64 w-full object-cover rounded-md mb-6"
+                />
 
                 <p className="text-green-700 mb-4">
-                    Publisher: <span className="font-medium">Publisher Name</span>
+                    Publisher: <span className="font-medium">{article.publisherName || article.publisher}</span>
                 </p>
 
-                <p className="text-green-800 leading-relaxed mb-6">
-                    This is where the detailed article description will go. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                <p className="text-green-800 leading-relaxed mb-6 whitespace-pre-line">
+                    {article.longDescription || article.description || 'No description available.'}
+                </p>
+
+                <p className="text-green-600 mb-4 font-semibold">
+                    Views: {article.views || 0}
                 </p>
 
                 <button

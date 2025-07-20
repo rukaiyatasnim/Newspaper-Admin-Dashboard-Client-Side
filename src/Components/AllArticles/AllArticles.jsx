@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
-// Mock publishers (replace later with real data)
+// Mock publishers
 const publishers = [
     { value: 'prthom-alo', label: 'Prthom Alo' },
     { value: 'daily-star', label: 'Daily Star' },
@@ -22,7 +22,7 @@ const tagsOptions = [
 // Mock articles data
 const articlesMock = [
     {
-        id: 1,
+        _id: '1',
         title: 'Politics in Bangladesh: A New Era',
         image: 'https://via.placeholder.com/300x180?text=Politics',
         publisher: 'prthom-alo',
@@ -31,7 +31,7 @@ const articlesMock = [
         isPremium: false,
     },
     {
-        id: 2,
+        _id: '2',
         title: 'Latest Advances in Technology',
         image: 'https://via.placeholder.com/300x180?text=Technology',
         publisher: 'daily-star',
@@ -39,41 +39,48 @@ const articlesMock = [
         tags: ['technology'],
         isPremium: true,
     },
-    // More articles ...
+    {
+        _id: '3',
+        title: 'Bangladesh wins gold in South Asian Games',
+        image: 'https://via.placeholder.com/300x180?text=Sports',
+        publisher: 'bdnews24',
+        description: 'An unexpected victory in regional sports.',
+        tags: ['sports'],
+        isPremium: false,
+    },
+    {
+        _id: '4',
+        title: 'Education Reform Policy 2025',
+        image: 'https://via.placeholder.com/300x180?text=Education',
+        publisher: 'jugantor',
+        description: 'What the new reforms mean for students.',
+        tags: ['education'],
+        isPremium: true,
+    },
 ];
 
 const AllArticles = () => {
     const navigate = useNavigate();
-
-    // Simulate user subscription status
     const [isSubscribed, setIsSubscribed] = useState(false);
-
-    // Filters & search
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPublisher, setSelectedPublisher] = useState(null);
     const [selectedTags, setSelectedTags] = useState([]);
 
-    // Filter articles based on search, publisher, and tags
     const filteredArticles = useMemo(() => {
         return articlesMock.filter(article => {
-            if (searchTerm && !article.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-                return false;
-            }
-            if (selectedPublisher && article.publisher !== selectedPublisher.value) {
-                return false;
-            }
+            if (searchTerm && !article.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+            if (selectedPublisher && article.publisher !== selectedPublisher.value) return false;
             if (selectedTags.length > 0) {
-                const articleTagsSet = new Set(article.tags);
-                for (const tag of selectedTags) {
-                    if (!articleTagsSet.has(tag.value)) return false;
+                const tagSet = new Set(article.tags);
+                for (let tag of selectedTags) {
+                    if (!tagSet.has(tag.value)) return false;
                 }
             }
             return true;
         });
     }, [searchTerm, selectedPublisher, selectedTags]);
 
-    // Get publisher label by value
-    const getPublisherName = val => {
+    const getPublisherName = (val) => {
         const found = publishers.find(p => p.value === val);
         return found ? found.label : val;
     };
@@ -83,16 +90,16 @@ const AllArticles = () => {
             alert('You need a subscription to view premium articles.');
             return;
         }
-        navigate(`/articles/${article.id}`);
+        navigate(`/articles/${article._id}`);
     };
 
     return (
         <div className="max-w-7xl mx-auto p-6 bg-green-50 rounded-lg mt-10">
             <h1 className="text-4xl font-bold text-green-900 mb-8 text-center">All Articles</h1>
 
-            {/* Simulate subscription toggle */}
+            {/* Simulate subscription */}
             <div className="mb-6 flex justify-center gap-4 items-center">
-                <label className="font-semibold text-green-800">Simulate Subscription:</label>
+                <label className="font-semibold text-green-800">Subscription:</label>
                 <button
                     onClick={() => setIsSubscribed(!isSubscribed)}
                     className={`px-4 py-2 rounded-full font-semibold transition ${isSubscribed ? 'bg-green-700 text-white hover:bg-green-800' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
@@ -133,7 +140,7 @@ const AllArticles = () => {
                 </div>
             </div>
 
-            {/* Articles Grid */}
+            {/* Articles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredArticles.length === 0 ? (
                     <p className="text-center col-span-full text-green-700 text-lg font-semibold">
@@ -142,10 +149,18 @@ const AllArticles = () => {
                 ) : (
                     filteredArticles.map(article => (
                         <div
-                            key={article.id}
-                            className={`border rounded-lg shadow-md overflow-hidden flex flex-col ${article.isPremium ? 'border-yellow-500 bg-yellow-50' : 'border-green-300 bg-white'
+                            key={article._id}
+                            className={`relative rounded-xl overflow-hidden flex flex-col transition transform hover:scale-[1.02] ${article.isPremium
+                                ? 'border-2 border-green-500 bg-green-100 shadow-[0_0_20px_rgba(34,197,94,0.5)]'
+                                : 'border border-green-300 bg-white shadow-md'
                                 }`}
                         >
+                            {/* Premium Badge */}
+                            {article.isPremium && (
+                                <div className="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10">
+                                    PREMIUM
+                                </div>
+                            )}
                             <img src={article.image} alt={article.title} className="h-48 w-full object-cover" />
                             <div className="p-4 flex flex-col flex-grow">
                                 <h2 className="text-xl font-semibold text-green-900 mb-2">{article.title}</h2>
@@ -157,8 +172,10 @@ const AllArticles = () => {
                                     onClick={() => handleDetailsClick(article)}
                                     disabled={article.isPremium && !isSubscribed}
                                     className={`mt-4 rounded-full py-2 font-semibold transition w-full
-                                        ${article.isPremium && !isSubscribed
-                                            ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                                        ${article.isPremium
+                                            ? (isSubscribed
+                                                ? 'bg-green-600 text-white hover:bg-green-700'
+                                                : 'bg-green-200 text-green-700 cursor-not-allowed')
                                             : 'bg-green-700 text-white hover:bg-green-800'
                                         }
                                     `}

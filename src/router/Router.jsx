@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "../layouts/RootLayout";
 import Home from "../Pages/Home/Home/Home";
 import AddArticles from './../Components/AddArticles/AddArticles';
@@ -11,6 +11,8 @@ import AllArticlesDetails from "../Components/AllArticles/AllArticlesDetails";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../Pages/Authentication/Login/Login";
 import Register from "../Pages/Authentication/Register/Register";
+import Profile from "../Components/Profile/Profile";
+import Payment from "../Components/Payment/Payment"; // <-- Import wrapper with Elements
 
 export const router = createBrowserRouter([
     {
@@ -25,20 +27,16 @@ export const router = createBrowserRouter([
             { path: "MyArticles", Component: MyArticles },
             { path: "premiumArticles", Component: PremiumArticles },
             { path: "subscription", Component: Subscription },
+            { path: "profile", Component: Profile },
+            { path: "payment/:id", Component: Payment }, // Use Payment here, NOT PaymentForm
         ]
     },
     {
         path: "/",
         Component: AuthLayout,
         children: [
-            {
-                path: 'login',
-                Component: Login
-            },
-            {
-                path: 'register',
-                Component: Register
-            }
+            { path: 'login', Component: Login },
+            { path: 'register', Component: Register },
         ]
     }
 ]);

@@ -4,10 +4,10 @@ import Swal from "sweetalert2";
 import { AuthContext } from "../../../Context/AuthContext/AuthContext";
 
 const Navbar = () => {
-    const { user, signOutUser } = useContext(AuthContext);
+    const { user, logOut } = useContext(AuthContext);
 
     const handleSignOut = () => {
-        signOutUser()
+        logOut()
             .then(() =>
                 Swal.fire({
                     position: "top-end",
@@ -48,6 +48,7 @@ const Navbar = () => {
                         <li><Link to="/addArticle">Add Articles</Link></li>
                         <li><Link to="/allArticle">All Articles</Link></li>
                         <li><Link to="/subscription">Subscription</Link></li>
+                        <li><Link to="/profile">My Profile</Link></li>
                     </ul>
                 </div>
                 <Link to="/" className="btn btn-ghost text-xl">
@@ -87,6 +88,14 @@ const Navbar = () => {
                             className={({ isActive }) => (isActive ? "text-green-700  font-bold" : "")}
                         >
                             Subscription
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/subscription"
+                            className={({ isActive }) => (isActive ? "text-green-700  font-bold" : "")}
+                        >
+                            My Profile
                         </NavLink>
                     </li>
                 </ul>
