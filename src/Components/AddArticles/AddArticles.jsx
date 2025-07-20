@@ -1,170 +1,120 @@
 import React, { useState } from 'react';
-import Select from 'react-select';
+import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
 
-const staticPublishers = [
-    { value: 'prthom-alo', label: 'Prthom Alo' },
-    { value: 'daily-star', label: 'Daily Star' },
-    { value: 'bdnews24', label: 'BDNews24' },
-    { value: 'jugantor', label: 'Jugantor' },
-];
-
-const staticTags = [
-    { value: 'politics', label: 'Politics' },
-    { value: 'sports', label: 'Sports' },
-    { value: 'technology', label: 'Technology' },
-    { value: 'education', label: 'Education' },
-    { value: 'health', label: 'Health' },
-];
+// const staticTags = [
+//     { value: 'politics', label: 'Politics' },
+//     { value: 'sports', label: 'Sports' },
+//     { value: 'technology', label: 'Technology' },
+//     { value: 'education', label: 'Education' },
+//     { value: 'health', label: 'Health' },
+// ];
 
 const AddArticle = () => {
-    const [title, setTitle] = useState('');
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [publisher, setPublisher] = useState(null);
-    const [tags, setTags] = useState([]);
-    const [description, setDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    // Handle image preview
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        setImageFile(file);
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm({
+        defaultValues: {
+            title: '',
+            description: '',
+            publisher: '',
+            tags: [],
+            imageFile: null,
+        },
+    });
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            setImagePreview(null);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!title || !imageFile || !publisher || tags.length === 0 || !description) {
-            alert('Please fill all the fields');
-            return;
-        }
-
+    const onSubmit = async (data) => {
         setSubmitting(true);
-e
+        try {
+            // Instead of uploading image, use placeholder URL or empty string
+            const imageUrl = 'https://via.placeholder.com/150';
 
-        const articleData = {
-            title,
-            imageFile,
-            publisher: publisher.value,
-            tags: tags.map(tag => tag.value),
-            description,
-        };
+            const article = {
+                title: data.title,
+                description: data.description,
+                publisher: data.publisher,
+                tags: data.tags, // here tags is a string array (comma separated from input)
+                image: imageUrl,
+            };
 
-        console.log('Article Data to submit:', articleData);
+            // For testing, just console.log or fake API call
+            console.log('Submitting article:', article);
 
-        setTimeout(() => {
-            alert('Article submitted! (Simulation)');
+            // Simulate API call delay
+            await new Promise((r) => setTimeout(r, 1000));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Article Submitted',
+                text: 'Waiting for admin approval.',
+            });
+
+            reset();
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission failed',
+                text: error.message || 'Something went wrong',
+            });
+        } finally {
             setSubmitting(false);
-            // Reset form
-            setTitle('');
-            setImageFile(null);
-            setImagePreview(null);
-            setPublisher(null);
-            setTags([]);
-            setDescription('');
-        }, 1500);
+        }
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-            <h2 className="text-3xl font-bold mb-6 text-green-900">Add New Article</h2>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow mt-10">
+            <h2 className="text-3xl font-bold text-green-900 mb-6">Add New Article (Test Mode)</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" encType="multipart/form-data">
+                <input
+                    type="text"
+                    placeholder="Article Title"
+                    className="input input-bordered w-full"
+                    {...register('title', { required: 'Title is required' })}
+                />
+                {errors.title && <p className="text-red-600">{errors.title.message}</p>}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Title */}
-                <div>
-                    <label className="block font-semibold text-green-800 mb-2" htmlFor="title">
-                        Title
-                    </label>
-                    <input
-                        id="title"
-                        type="text"
-                        className="w-full border border-green-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter article title"
-                        required
-                    />
-                </div>
+                <textarea
+                    placeholder="Description"
+                    className="textarea textarea-bordered w-full"
+                    {...register('description', { required: 'Description is required' })}
+                />
+                {errors.description && <p className="text-red-600">{errors.description.message}</p>}
 
-                {/* Image */}
-                <div>
-                    <label className="block font-semibold text-green-800 mb-2" htmlFor="image">
-                        Upload Image
-                    </label>
-                    <input
-                        id="image"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="block w-full text-green-900"
-                        required
-                    />
-                    {imagePreview && (
-                        <img
-                            src={imagePreview}
-                            alt="Preview"
-                            className="mt-3 max-h-48 rounded-md object-contain"
-                        />
-                    )}
-                </div>
+                <input
+                    type="text"
+                    placeholder="Publisher (text input for testing)"
+                    className="input input-bordered w-full"
+                    {...register('publisher', { required: 'Publisher is required' })}
+                />
+                {errors.publisher && <p className="text-red-600">{errors.publisher.message}</p>}
 
-                {/* Publisher Dropdown */}
-                <div>
-                    <label className="block font-semibold text-green-800 mb-2">Publisher</label>
-                    <Select
-                        options={staticPublishers}
-                        value={publisher}
-                        onChange={setPublisher}
-                        placeholder="Select Publisher"
-                        isClearable
-                        className="text-green-900"
-                    />
-                </div>
+                <input
+                    type="text"
+                    placeholder="Tags (comma separated)"
+                    className="input input-bordered w-full"
+                    {...register('tags', {
+                        required: 'At least one tag required',
+                        validate: (val) => val.trim() !== '',
+                    })}
+                />
+                {errors.tags && <p className="text-red-600">{errors.tags.message}</p>}
 
-                {/* Tags Multi-Select */}
-                <div>
-                    <label className="block font-semibold text-green-800 mb-2">Tags</label>
-                    <Select
-                        options={staticTags}
-                        value={tags}
-                        onChange={setTags}
-                        isMulti
-                        placeholder="Select tags"
-                        className="text-green-900"
-                    />
-                </div>
+                <input
+                    type="file"
+                    accept="image/*"
+                    {...register('imageFile')}
+                // no preview or upload for testing
+                />
 
-                {/* Description */}
-                <div>
-                    <label className="block font-semibold text-green-800 mb-2" htmlFor="description">
-                        Description
-                    </label>
-                    <textarea
-                        id="description"
-                        rows="5"
-                        className="w-full border border-green-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Write your article description here..."
-                        required
-                    />
-                </div>
-
-                {/* Submit */}
                 <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-green-700 text-white py-3 rounded-full font-semibold hover:bg-green-800 transition-colors disabled:opacity-60"
+                    className="btn bg-green-700 text-white w-full hover:bg-green-800"
                 >
                     {submitting ? 'Submitting...' : 'Submit Article'}
                 </button>

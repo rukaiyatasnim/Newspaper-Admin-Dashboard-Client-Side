@@ -1,12 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
+import useAuth from '../../../Hooks/useAuth';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
 const Register = () => {
     const { register, handleSubmit } = useForm();
+    const { createUser } = useAuth()
 
     const onSubmit = (data) => {
-        console.log(data);
+        createUser(data.email, data.password)
+            .then((res) => {
+                console.log(res.user)
+            })
+            .catch((err) => {
+                console.error(err)
+            })
     };
 
     return (
@@ -64,6 +73,8 @@ const Register = () => {
                             Login
                         </Link>
                     </p>
+
+
                 </form>
             </div>
         </section>
