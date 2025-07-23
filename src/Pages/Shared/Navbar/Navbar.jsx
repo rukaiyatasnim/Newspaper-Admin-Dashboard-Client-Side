@@ -98,6 +98,19 @@ const Navbar = () => {
                             My Profile
                         </NavLink>
                     </li>
+
+                    {
+                        user && <>
+                            <li>
+                                <NavLink
+                                    to="/dashboard"
+                                    className={({ isActive }) => (isActive ? "text-green-700  font-bold" : "")}
+                                >
+                                    Dashboard
+                                </NavLink>
+                            </li>
+                        </>
+                    }
                 </ul>
             </div>
 
