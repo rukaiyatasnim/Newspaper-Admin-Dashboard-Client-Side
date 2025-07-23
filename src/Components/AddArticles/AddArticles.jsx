@@ -1,14 +1,21 @@
-import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 const AddArticle = () => {
+    const [publishers, setPublishers] = useState([]);
     const {
         register,
         handleSubmit,
         reset,
-        control,
         formState: { errors, isSubmitting },
     } = useForm();
+
+    useEffect(() => {
+        fetch("http://localhost:5000/publishers")
+            .then((res) => res.json())
+            .then(setPublishers)
+            .catch(console.error);
+    }, []);
 
     const onSubmit = async (data) => {
         try {
@@ -16,7 +23,7 @@ const AddArticle = () => {
                 title: data.title,
                 description: data.description,
                 longDescription: data.longDescription || "",
-                publisher: data.publisher,
+                publisher: data.publisher, // this is ObjectId string now
                 tags: data.tags ? data.tags.split(",").map((t) => t.trim()) : [],
                 image: data.imageUrl,
                 isPremium: data.isPremium || false,
@@ -24,12 +31,16 @@ const AddArticle = () => {
 
             console.log("Submitting article:", article);
 
-            // Replace with your backend endpoint
-            await fetch("http://localhost:5000/addArticle", {
+            const res = await fetch("http://localhost:5000/addArticle", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(article),
             });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || "Submission failed");
+            }
 
             alert("Article submitted! Waiting for admin approval.");
             reset();
@@ -64,12 +75,21 @@ const AddArticle = () => {
                     {...register("longDescription")}
                 />
 
-                <input
-                    type="text"
-                    placeholder="Publisher Name"
+                {/* Publisher select dropdown instead of text input */}
+                <select
                     className="input input-bordered w-full"
                     {...register("publisher", { required: "Publisher is required" })}
-                />
+                    defaultValue=""
+                >
+                    <option value="" disabled>
+                        Select Publisher
+                    </option>
+                    {publishers.map((pub) => (
+                        <option key={pub._id} value={pub._id}>
+                            {pub.name}
+                        </option>
+                    ))}
+                </select>
                 {errors.publisher && <p className="text-red-600">{errors.publisher.message}</p>}
 
                 <input

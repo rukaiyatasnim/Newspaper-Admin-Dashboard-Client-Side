@@ -12,6 +12,7 @@ const Dashboard = () => {
             .catch((err) => console.error('Error fetching articles', err));
     }, []);
 
+    // Prepare dynamic PieChart data with publisher and their article counts (percentages handled by Google Charts automatically)
     const pieChartData = () => {
         const countByPublisher = {};
         articleData.forEach(article => {
@@ -26,6 +27,7 @@ const Dashboard = () => {
         return chartArray;
     };
 
+    // Static Bar Chart data - example monthly submitted vs approved articles
     const barData = [
         ['Month', 'Articles Submitted', 'Articles Approved'],
         ['Jan', 10, 7],
@@ -34,7 +36,8 @@ const Dashboard = () => {
         ['Apr', 18, 15],
     ];
 
-    const areaData = [
+    // Static Line Chart data - example daily views
+    const lineData = [
         ['Day', 'Views'],
         ['Mon', 100],
         ['Tue', 120],
@@ -49,7 +52,7 @@ const Dashboard = () => {
         <div className="p-8 space-y-12 bg-green-50 min-h-full rounded-lg shadow-md">
             <h1 className="text-4xl font-bold text-green-700">📊 Analytics Overview</h1>
 
-            {/* Pie Chart */}
+            {/* Dynamic Pie Chart */}
             <div className="bg-white border-l-4 border-green-500 p-6 rounded-lg shadow-md">
                 <h2 className="text-2xl font-semibold text-green-600 mb-4">Articles by Publisher</h2>
                 <Chart
@@ -61,11 +64,13 @@ const Dashboard = () => {
                         pieHole: 0.4,
                         is3D: false,
                         colors: ['#4ade80', '#86efac', '#22c55e', '#16a34a', '#15803d'],
+                        chartArea: { width: '80%', height: '80%' },
+                        legend: { position: 'right', textStyle: { fontSize: 14 } },
                     }}
                 />
             </div>
 
-            {/* Bar Chart */}
+            {/* Static Bar Chart */}
             <div className="bg-white border-l-4 border-green-500 p-6 rounded-lg shadow-md">
                 <h2 className="text-2xl font-semibold text-green-600 mb-4">Monthly Submission vs Approval</h2>
                 <Chart
@@ -76,25 +81,27 @@ const Dashboard = () => {
                     options={{
                         chart: { title: 'Monthly Stats', subtitle: 'Articles Submitted vs Approved' },
                         colors: ['#34d399', '#10b981'],
+                        legend: { position: 'bottom' },
                     }}
                 />
             </div>
 
-            {/* Area Chart */}
+            {/* Static Line Chart */}
             <div className="bg-white border-l-4 border-green-500 p-6 rounded-lg shadow-md">
                 <h2 className="text-2xl font-semibold text-green-600 mb-4">Weekly Views</h2>
                 <Chart
-                    chartType="AreaChart"
+                    chartType="LineChart"
                     width="100%"
                     height="300px"
-                    data={areaData}
+                    data={lineData}
                     options={{
                         title: 'Views This Week',
                         hAxis: { title: 'Day' },
                         vAxis: { title: 'Views' },
-                        legend: 'none',
                         colors: ['#22c55e'],
                         backgroundColor: '#fff',
+                        legend: { position: 'none' },
+                        curveType: 'function', // smooth line
                     }}
                 />
             </div>

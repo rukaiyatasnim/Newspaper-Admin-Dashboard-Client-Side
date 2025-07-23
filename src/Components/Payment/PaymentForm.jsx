@@ -91,7 +91,7 @@ const PaymentForm = () => {
                     paymentMethod: result.paymentIntent.payment_method_types,
                 };
 
-                const paymentRes = await axiosSecure.post('/payments', paymentData);
+                const paymentRes = await axiosSecure.post('/premiumArticles', paymentData);
 
                 if (paymentRes.data.insertedId) {
                     await Swal.fire({

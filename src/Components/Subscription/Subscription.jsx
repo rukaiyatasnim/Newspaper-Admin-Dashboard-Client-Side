@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
 const Subscription = () => {
     const navigate = useNavigate();
@@ -21,32 +22,43 @@ const Subscription = () => {
         else if (duration === "5") planId = "5days";
         else if (duration === "10") planId = "10days";
 
-        // Store price and duration in localStorage for Payment page
         localStorage.setItem('subscriptionDetails', JSON.stringify({ duration, price }));
-
         navigate(`/payment/${planId}`);
     };
 
     return (
-        <div className="min-h-screen bg-green-50 py-10">
-            <div className="w-11/12 md:w-8/12 mx-auto text-center bg-green-100 p-10 rounded-xl shadow-md">
-                <h1 className="text-4xl font-bold text-green-800 mb-4">Unlock Premium News</h1>
-                <p className="text-lg text-green-700">
-                    Subscribe to get access to exclusive premium articles with high-quality content, trusted sources, and zero ads.
-                </p>
+        <div className="min-h-screen bg-green-50 flex flex-col items-center justify-start py-12 px-4 sm:px-6 lg:px-8">
+
+            {/* Banner */}
+            <div className="relative bg-green-600 text-white rounded-xl shadow-lg w-full max-w-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-2">
+                        <SparklesIcon className="h-8 w-8 text-yellow-300" />
+                        Unlock Premium Access
+                    </h1>
+                    <p className="mt-2 text-green-100">
+                        Enjoy exclusive, ad-free, high-quality articles tailored for your interests.
+                    </p>
+                </div>
+                <img
+                    src="https://img.freepik.com/free-vector/premium-quality-badge-golden_1017-27587.jpg"
+                    alt="Premium"
+                    className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-yellow-300 shadow-inner object-cover"
+                />
             </div>
 
-            <div className="w-11/12 md:w-4/12 mx-auto bg-white mt-10 p-8 rounded-xl shadow-lg">
-                <h2 className="text-2xl font-semibold text-green-700 mb-4 text-center">Choose Your Plan</h2>
+            {/* Card */}
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-8">
+                <h2 className="text-2xl font-bold text-green-800 text-center mb-6">Choose Your Plan</h2>
 
-                <div className="form-control mb-5">
-                    <label className="label">
-                        <span className="label-text text-green-600">Subscription Period</span>
+                <div className="mb-5">
+                    <label className="block mb-2 text-green-700 font-medium">
+                        Subscription Period
                     </label>
                     <select
                         value={duration}
                         onChange={handleDurationChange}
-                        className="select select-bordered border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+                        className="w-full border border-green-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                         <option value="1">1 Minute (Test Plan)</option>
                         <option value="5">5 Days</option>
@@ -54,16 +66,16 @@ const Subscription = () => {
                     </select>
                 </div>
 
-                <div className="mb-6">
-                    <p className="text-green-700 font-medium">
-                        Price: <span className="text-green-900 font-bold">${price}</span>
-                    </p>
+                <div className="flex justify-between items-center mb-6">
+                    <span className="text-green-700 font-semibold">Total Price:</span>
+                    <span className="text-green-900 font-bold text-lg">${price}</span>
                 </div>
 
                 <button
                     onClick={handleSubscribe}
-                    className="btn bg-green-600 hover:bg-green-700 text-white w-full"
+                    className="bg-green-600 hover:bg-green-700 transition text-white font-semibold py-3 rounded-md w-full flex justify-center items-center gap-2"
                 >
+                    <CheckCircleIcon className="h-5 w-5" />
                     Take Subscription
                 </button>
             </div>
