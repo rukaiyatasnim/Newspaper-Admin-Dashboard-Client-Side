@@ -12,12 +12,13 @@ const Profile = () => {
 
     const { register, handleSubmit, reset } = useForm();
 
-    // Fetch user data from server
+    // Fetch user data with encoded email
     const { data: serverUser, isLoading } = useQuery({
         queryKey: ["userProfile", user?.email],
         enabled: !!user?.email,
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:5000/users/${user.email}`);
+            const encodedEmail = encodeURIComponent(user.email);
+            const res = await axios.get(`http://localhost:5000/users/${encodedEmail}`);
             reset(res.data); // preload form fields
             return res.data;
         },
@@ -26,10 +27,8 @@ const Profile = () => {
     // Mutation to update profile
     const updateProfile = useMutation({
         mutationFn: async (data) => {
-            return await axios.put(
-                `http://localhost:5000/users/${user.email}`,
-                data
-            );
+            const encodedEmail = encodeURIComponent(user.email);
+            return await axios.put(`http://localhost:5000/users/${encodedEmail}`, data);
         },
         onSuccess: () => {
             alert("Profile updated successfully!");
@@ -43,8 +42,8 @@ const Profile = () => {
     const onSubmit = async (data) => {
         let imageUrl = serverUser?.image || null;
 
-        // If new image is uploaded
-        if (data.image[0]) {
+        // Upload new image if selected
+        if (data.image && data.image[0]) {
             const formData = new FormData();
             formData.append("image", data.image[0]);
             const imgbbRes = await axios.post(
@@ -57,6 +56,7 @@ const Profile = () => {
         const updatedData = {
             name: data.name,
             image: imageUrl,
+            email: user.email.toLowerCase(),
         };
 
         updateProfile.mutate(updatedData);
@@ -109,9 +109,9 @@ const Profile = () => {
                 <button
                     className="btn w-full bg-green-600 text-white hover:bg-green-700"
                     type="submit"
-                    disabled={updateProfile.isPending}
+                    disabled={updateProfile.isLoading}
                 >
-                    {updateProfile.isPending ? "Updating..." : "Update Profile"}
+                    {updateProfile.isLoading ? "Updating..." : "Update Profile"}
                 </button>
             </form>
         </div>
