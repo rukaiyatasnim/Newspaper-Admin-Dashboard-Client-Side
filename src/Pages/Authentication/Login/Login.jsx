@@ -1,29 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useForm } from "react-hook-form"
+import { useForm } from "react-hook-form";
 import SocialLogin from '../SocialLogin/SocialLogin';
-
 
 const Login = () => {
 
     const {
         register,
         handleSubmit,
-        // watch,
-        // formState: { errors },
-    } = useForm()
-
+    } = useForm();
 
     const onSubmit = (data) => {
-        console.log(data)
-    }
+        console.log(data);
+    };
 
     return (
         <section className="min-h-screen flex items-center justify-center bg-green-50">
             <div className="w-11/12 md:w-4/12 bg-white p-10 rounded-2xl shadow-xl">
                 <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">Login to Your Account</h2>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 ">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div className="form-control">
                         <label className="label">
                             <span className="label-text text-green-700">Email</span>
@@ -34,7 +30,6 @@ const Login = () => {
                             className="input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                             required
                             {...register("email")}
-
                         />
                     </div>
 
@@ -48,7 +43,6 @@ const Login = () => {
                             className="input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                             required
                             {...register("password")}
-
                         />
                         <label className="label">
                             <Link to="/forgot-password" className="label-text-alt text-green-600 hover:underline">
@@ -60,15 +54,18 @@ const Login = () => {
                     <button type="submit" className="btn bg-green-600 text-white hover:bg-green-700 w-full">
                         Login
                     </button>
+                </form>
 
-                    <p className="text-sm text-center text-gray-500">
-                        Don’t have an account?
+                <div className="mt-6 text-center text-sm text-gray-500">
+                    <p>
+                        Don’t have an account?{" "}
                         <Link to="/register" className="text-green-600 font-semibold hover:underline ml-1">
                             Register
                         </Link>
-                        <SocialLogin></SocialLogin>
                     </p>
-                </form>
+
+                    <SocialLogin />
+                </div>
             </div>
         </section>
     );

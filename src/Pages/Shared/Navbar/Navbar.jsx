@@ -140,7 +140,7 @@ const Navbar = () => {
                     </>
                 ) : (
                     <>
-                        <NavLink to="/signIn" className="btn">
+                        <NavLink to="/login" className="btn">
                             Login
                         </NavLink>
                         <NavLink to="/register" className="btn">
