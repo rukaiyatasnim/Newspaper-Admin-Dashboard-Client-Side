@@ -1,17 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
 const PremiumArticles = () => {
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const axiosSecure = useAxiosSecure();
 
     useEffect(() => {
-        const fetchPremiumArticles = async () => {
+        const checkSubscriptionAndFetch = async () => {
             try {
-                const res = await axios.get('/allArticles');
-                const premiumArticles = res.data.filter(article => article.isPremium);
+                const userData = JSON.parse(localStorage.getItem('user'));
+                if (!userData) {
+                    navigate('/subscription');
+                    return;
+                }
+
+                const res = await axiosSecure.get(`/users/${userData.email}`);
+                const premiumExpiry = res.data?.premiumTaken || 0;
+
+                if (Date.now() > premiumExpiry) {
+                    navigate('/subscription');
+                    return;
+                }
+
+                const articleRes = await axiosSecure.get('/allArticles');
+                const premiumArticles = articleRes.data.filter(article => article.isPremium);
                 setArticles(premiumArticles);
                 setLoading(false);
             } catch (error) {
@@ -19,8 +34,9 @@ const PremiumArticles = () => {
                 setLoading(false);
             }
         };
-        fetchPremiumArticles();
-    }, []);
+
+        checkSubscriptionAndFetch();
+    }, [navigate, axiosSecure]);
 
     if (loading) return <div className="text-center text-green-700 mt-20">Loading premium articles...</div>;
 
@@ -35,18 +51,21 @@ const PremiumArticles = () => {
                     {articles.map(article => (
                         <div
                             key={article._id}
-                            className="bg-white rounded-lg shadow-md border border-green-100 hover:shadow-lg transition duration-300 flex flex-col"
+                            className="bg-green-50 rounded-lg shadow hover:shadow-md transition duration-300 border border-green-200 flex flex-col overflow-hidden"
                         >
                             <img
                                 src={article.image}
                                 alt={article.title}
-                                className="h-48 w-full object-cover rounded-t-lg"
+                                className="h-48 w-full object-cover"
                             />
                             <div className="p-4 flex-1 flex flex-col">
-                                <h2 className="text-xl font-semibold text-green-800 mb-2">{article.title}</h2>
-                                <p className="text-green-600 text-sm mb-2">Publisher: <span className="font-medium">{article.publisherName}</span></p>
-                                <p className="text-green-700 flex-1">{article.description.slice(0, 100)}{article.description.length > 100 && '...'}</p>
-
+                                <h2 className="text-xl font-bold text-green-900 mb-2">{article.title}</h2>
+                                <p className="text-green-700 text-sm mb-2">
+                                    Publisher: <span className="font-medium">{article.publisherName}</span>
+                                </p>
+                                <p className="text-green-800 flex-1 text-sm">
+                                    {article.description.slice(0, 100)}{article.description.length > 100 && '...'}
+                                </p>
                                 <button
                                     onClick={() => navigate(`/allArticlesDetails/${article._id}`)}
                                     className="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition"
