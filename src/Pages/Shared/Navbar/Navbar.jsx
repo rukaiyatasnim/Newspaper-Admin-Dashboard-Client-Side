@@ -116,6 +116,9 @@ const Navbar = () => {
                             <Link to="/subscription">Subscription</Link>
                         </li>
                         <li>
+                            <Link to="/myArticles">My Articles</Link>
+                        </li>
+                        <li>
                             <Link to="/profile">My Profile</Link>
                         </li>
                         {isPremium && !checkingPremium && (
@@ -175,6 +178,16 @@ const Navbar = () => {
                             }
                         >
                             Subscription
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/myArticles"
+                            className={({ isActive }) =>
+                                isActive ? "text-green-700 font-bold" : ""
+                            }
+                        >
+                            My Articles
                         </NavLink>
                     </li>
                     <li>

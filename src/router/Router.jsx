@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
             { path: "addArticle", element: <AddArticles /> },
             { path: "allArticle", element: <AllArticles /> },
             { path: "articles/:id", element: <AllArticlesDetails /> },
-            { path: "MyArticles", element: <MyArticles /> },
+            { path: "myArticles", element: <MyArticles /> },
             { path: "premiumArticles", element: <PremiumArticles /> },
             { path: "subscription", element: <Subscription /> },
             { path: "profile", element: <Profile /> },
