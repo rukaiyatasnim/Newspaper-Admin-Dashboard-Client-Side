@@ -87,7 +87,7 @@ const PaymentForm = () => {
                     paymentMethod: result.paymentIntent.payment_method_types,
                 };
 
-                const paymentRes = await axiosSecure.post('/premiumArticles', paymentData);
+                const paymentRes = await axiosSecure.post('/payments', paymentData);
 
                 if (paymentRes.data.insertedId) {
                     await Swal.fire({
@@ -98,7 +98,7 @@ const PaymentForm = () => {
                     });
 
                     // ✅ Fetch updated user data from backend and update localStorage
-                    const updatedUserRes = await axiosSecure.get(`/users/${user.email}`);
+                    const updatedUserRes = await axiosSecure.get(`/users/${encodeURIComponent(user.email)}`);
                     const updatedUser = updatedUserRes.data;
                     localStorage.setItem('user', JSON.stringify(updatedUser));
 

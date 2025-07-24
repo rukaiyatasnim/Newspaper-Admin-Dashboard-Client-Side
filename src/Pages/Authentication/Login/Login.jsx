@@ -2,16 +2,26 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import SocialLogin from '../SocialLogin/SocialLogin';
+import useAuth from '../../../Hooks/useAuth';
 
 const Login = () => {
+    const { signIn } = useAuth();
+
 
     const {
         register,
         handleSubmit,
     } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (data) => {
+        try {
+            await signIn(data.email, data.password);
+            alert('Login successful!');
+            // Optionally navigate to dashboard or homepage
+        } catch (error) {
+            console.error(error);
+            alert(error.message || 'Login failed');
+        }
     };
 
     return (

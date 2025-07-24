@@ -3,23 +3,33 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
+import useAuth from '../../../Hooks/useAuth';
+
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const { createUser } = useAuth();
+
 
     const onSubmit = async (data) => {
         try {
-            const res = await axios.post('http://localhost:5000/users', {
+            // 1️⃣ Create user in Firebase Auth
+            const userCredential = await createUser(data.email, data.password);
+            const user = userCredential.user;
+
+            // 2️⃣ Save user info to your backend
+            await axios.post('http://localhost:5000/users', {
                 name: data.name,
                 email: data.email,
                 photo: data.photo,
-                password: data.password,
                 role: 'user',
             });
-            alert(res.data.message || 'Registered successfully!');
-        } catch (err) {
-            console.error(err);
-            alert('Registration failed. Please try again.');
+
+            alert('Registered successfully!');
+            // Optionally navigate to login or dashboard
+        } catch (error) {
+            console.error(error);
+            alert(error.message || 'Registration failed');
         }
     };
 

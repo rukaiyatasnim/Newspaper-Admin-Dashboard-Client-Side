@@ -1,78 +1,83 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAuth from '../../Hooks/useAuth';
 
 const PremiumArticles = () => {
+    const { user, loading: authLoading } = useAuth();
+
     const [articles, setArticles] = useState([]);
+    const [userInfo, setUserInfo] = useState(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [error, setError] = useState(null);
+
     const axiosSecure = useAxiosSecure();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const checkSubscriptionAndFetch = async () => {
+        if (authLoading) {
+            // Don't fetch yet, wait for auth to finish loading
+            return;
+        }
+
+        if (!user?.email) {
+            setError('User email missing');
+            setLoading(false);
+            return;
+        }
+
+        const fetchData = async () => {
             try {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                if (!userData) {
-                    navigate('/subscription');
-                    return;
+                setLoading(true);
+                const { data: userData } = await axiosSecure.get(`/users/${encodeURIComponent(user.email)}`);
+                setUserInfo(userData);
+
+                const premiumDate = new Date(userData.premiumTaken);
+                const now = new Date();
+
+                if (userData.premiumTaken && premiumDate > now) {
+                    const { data: premiumArticles } = await axiosSecure.get('/premiumArticles');
+                    setArticles(premiumArticles);
+                } else {
+                    setArticles([]);
                 }
-
-                const res = await axiosSecure.get(`/users/${userData.email}`);
-                const premiumExpiry = res.data?.premiumTaken || 0;
-
-                if (Date.now() > premiumExpiry) {
-                    navigate('/subscription');
-                    return;
-                }
-
-                const articleRes = await axiosSecure.get('/allArticles');
-                const premiumArticles = articleRes.data.filter(article => article.isPremium);
-                setArticles(premiumArticles);
-                setLoading(false);
-            } catch (error) {
-                console.error(error);
+                setError(null);
+            } catch (err) {
+                setError('Failed to load data');
+                console.error(err);
+            } finally {
                 setLoading(false);
             }
         };
 
-        checkSubscriptionAndFetch();
-    }, [navigate, axiosSecure]);
+        fetchData();
+    }, [axiosSecure, user, authLoading]);
 
-    if (loading) return <div className="text-center text-green-700 mt-20">Loading premium articles...</div>;
+    if (authLoading || loading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+
+    if (!userInfo?.premiumTaken || new Date(userInfo.premiumTaken) <= new Date()) {
+        return <div>You do not have an active premium subscription.</div>;
+    }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-6 text-center">Premium Articles</h1>
-
+        <div>
+            <h2>Premium Articles</h2>
             {articles.length === 0 ? (
-                <p className="text-center text-green-600">No premium articles available.</p>
+                <p>No premium articles available.</p>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {articles.map(article => (
-                        <div
-                            key={article._id}
-                            className="bg-green-50 rounded-lg shadow hover:shadow-md transition duration-300 border border-green-200 flex flex-col overflow-hidden"
-                        >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1rem' }}>
+                    {articles.map((article) => (
+                        <div key={article._id} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' }}>
                             <img
                                 src={article.image}
                                 alt={article.title}
-                                className="h-48 w-full object-cover"
+                                style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }}
                             />
-                            <div className="p-4 flex-1 flex flex-col">
-                                <h2 className="text-xl font-bold text-green-900 mb-2">{article.title}</h2>
-                                <p className="text-green-700 text-sm mb-2">
-                                    Publisher: <span className="font-medium">{article.publisherName}</span>
-                                </p>
-                                <p className="text-green-800 flex-1 text-sm">
-                                    {article.description.slice(0, 100)}{article.description.length > 100 && '...'}
-                                </p>
-                                <button
-                                    onClick={() => navigate(`/allArticlesDetails/${article._id}`)}
-                                    className="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition"
-                                >
-                                    View Details
-                                </button>
-                            </div>
+                            <h3>{article.title}</h3>
+                            <p>Publisher: {article.publisherName}</p>
+                            <p>{article.description}</p>
+                            <button onClick={() => navigate(`/articles/${article._id}`)}>Details</button>
                         </div>
                     ))}
                 </div>
