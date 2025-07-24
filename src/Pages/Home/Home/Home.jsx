@@ -1,15 +1,15 @@
 import React from 'react';
 import TrendingArticlesSlider from '../TrendingArticlesSlider/TrendingArticlesSlider';
-import Publishers from '../Publishers/Publishers';
 import Statistics from '../Statistics/Statistics';
 import TrendingArticles from '../../../Components/TrendingArticles/TrendingArticles';
+import AllPublishers from '../../../Components/AllPublisher/AllPublisher';
 
 const Home = () => {
     return (
         <div>
             <TrendingArticlesSlider></TrendingArticlesSlider>
             <TrendingArticles></TrendingArticles>
-            <Publishers></Publishers>
+            <AllPublishers></AllPublishers>
             <Statistics></Statistics>
         </div>
     );
