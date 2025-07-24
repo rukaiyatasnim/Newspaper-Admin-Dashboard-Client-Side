@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../Hooks/useAuth";
+import { Helmet } from "react-helmet";
+
 
 // ✅ adjust based on your auth setup (replace with your context)
 
@@ -61,75 +63,83 @@ const AddArticle = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-10">
-            <h2 className="text-2xl font-bold text-green-800 mb-6">Submit a New Article</h2>
+        <>
+            <Helmet>
+                <title>Add Article </title>
+                <meta name="description" content="Submit your articles and share knowledge on BookiQ." />
+            </Helmet>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                <input
-                    type="text"
-                    placeholder="Title"
-                    className="input input-bordered w-full"
-                    {...register("title", { required: "Title is required" })}
-                />
-                {errors.title && <p className="text-red-600">{errors.title.message}</p>}
 
-                <textarea
-                    placeholder="Short Description"
-                    className="textarea textarea-bordered w-full"
-                    {...register("description", { required: "Description is required" })}
-                />
-                {errors.description && <p className="text-red-600">{errors.description.message}</p>}
+            <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-10">
+                <h2 className="text-2xl font-bold text-green-800 mb-6">Submit a New Article</h2>
 
-                <textarea
-                    placeholder="Long Description (optional)"
-                    className="textarea textarea-bordered w-full"
-                    {...register("longDescription")}
-                />
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                    <input
+                        type="text"
+                        placeholder="Title"
+                        className="input input-bordered w-full"
+                        {...register("title", { required: "Title is required" })}
+                    />
+                    {errors.title && <p className="text-red-600">{errors.title.message}</p>}
 
-                <select
-                    className="input input-bordered w-full"
-                    {...register("publisher", { required: "Publisher is required" })}
-                    defaultValue=""
-                >
-                    <option value="" disabled>Select Publisher</option>
-                    {publishers.map((pub) => (
-                        <option key={pub._id} value={pub._id}>
-                            {pub.name}
-                        </option>
-                    ))}
-                </select>
-                {errors.publisher && <p className="text-red-600">{errors.publisher.message}</p>}
+                    <textarea
+                        placeholder="Short Description"
+                        className="textarea textarea-bordered w-full"
+                        {...register("description", { required: "Description is required" })}
+                    />
+                    {errors.description && <p className="text-red-600">{errors.description.message}</p>}
 
-                <input
-                    type="text"
-                    placeholder="Tags (comma separated)"
-                    className="input input-bordered w-full"
-                    {...register("tags", { required: "At least one tag is required" })}
-                />
-                {errors.tags && <p className="text-red-600">{errors.tags.message}</p>}
+                    <textarea
+                        placeholder="Long Description (optional)"
+                        className="textarea textarea-bordered w-full"
+                        {...register("longDescription")}
+                    />
 
-                <input
-                    type="text"
-                    placeholder="Image URL"
-                    className="input input-bordered w-full"
-                    {...register("imageUrl", { required: "Image URL is required" })}
-                />
-                {errors.imageUrl && <p className="text-red-600">{errors.imageUrl.message}</p>}
+                    <select
+                        className="input input-bordered w-full"
+                        {...register("publisher", { required: "Publisher is required" })}
+                        defaultValue=""
+                    >
+                        <option value="" disabled>Select Publisher</option>
+                        {publishers.map((pub) => (
+                            <option key={pub._id} value={pub._id}>
+                                {pub.name}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.publisher && <p className="text-red-600">{errors.publisher.message}</p>}
 
-                <div className="flex items-center gap-2">
-                    <input type="checkbox" {...register("isPremium")} />
-                    <label>Premium Article</label>
-                </div>
+                    <input
+                        type="text"
+                        placeholder="Tags (comma separated)"
+                        className="input input-bordered w-full"
+                        {...register("tags", { required: "At least one tag is required" })}
+                    />
+                    {errors.tags && <p className="text-red-600">{errors.tags.message}</p>}
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="btn bg-green-700 text-white w-full hover:bg-green-800"
-                >
-                    {isSubmitting ? "Submitting..." : "Submit Article"}
-                </button>
-            </form>
-        </div>
+                    <input
+                        type="text"
+                        placeholder="Image URL"
+                        className="input input-bordered w-full"
+                        {...register("imageUrl", { required: "Image URL is required" })}
+                    />
+                    {errors.imageUrl && <p className="text-red-600">{errors.imageUrl.message}</p>}
+
+                    <div className="flex items-center gap-2">
+                        <input type="checkbox" {...register("isPremium")} />
+                        <label>Premium Article</label>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="btn bg-green-700 text-white w-full hover:bg-green-800"
+                    >
+                        {isSubmitting ? "Submitting..." : "Submit Article"}
+                    </button>
+                </form>
+            </div></>
+
     );
 };
 

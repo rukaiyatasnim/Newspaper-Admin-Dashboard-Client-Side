@@ -81,7 +81,17 @@ const PremiumArticles = () => {
                 🌿 Premium Articles
             </h1>
             {articles.length === 0 ? (
-                <p className="text-center text-green-700">No premium articles available yet.</p>
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="bg-white shadow-md border border-gray-200 rounded-lg p-8 max-w-md w-full text-center">
+                        <div className="text-5xl mb-4">📭</div>
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                            No Premium Content Yet
+                        </h2>
+                        <p className="text-gray-600">
+                            Currently, there are no premium articles available. Please check back later!
+                        </p>
+                    </div>
+                </div>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {articles.map((article) => (

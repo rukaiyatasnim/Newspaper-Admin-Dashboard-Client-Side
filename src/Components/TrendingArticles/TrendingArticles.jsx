@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FiEye } from "react-icons/fi";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
-axios.defaults.baseURL = "http://localhost:5000"; // Your backend base URL
+axios.defaults.baseURL = "http://localhost:5000";
 
 const TrendingArticles = () => {
     const [articles, setArticles] = useState([]);
@@ -15,11 +20,12 @@ const TrendingArticles = () => {
             try {
                 setLoading(true);
                 const { data } = await axios.get("/articles/trending");
-                setArticles(data);
-                setLoading(false);
+                const filtered = data.filter(article => article.views > 0);
+                setArticles(filtered.slice(0, 6)); // Limit to 6 articles only
             } catch (err) {
                 console.error(err);
                 setError("Failed to load trending articles.");
+            } finally {
                 setLoading(false);
             }
         };
@@ -28,39 +34,82 @@ const TrendingArticles = () => {
     }, []);
 
     if (loading)
-        return <p className="text-center mt-10 text-green-700">Loading trending articles...</p>;
+        return (
+            <p className="text-center mt-10 text-green-700 font-medium">
+                Loading trending articles...
+            </p>
+        );
 
     if (error)
-        return <p className="text-center mt-10 text-red-600">{error}</p>;
+        return (
+            <p className="text-center mt-10 text-red-600 font-medium">
+                {error}
+            </p>
+        );
 
     if (!articles.length)
-        return <p className="text-center mt-10 text-gray-500">No trending articles found.</p>;
+        return (
+            <div className="flex flex-col items-center justify-center mt-20 mb-20 px-4 text-center">
+                <div className="bg-green-50 border border-green-200 rounded-3xl p-10 max-w-xl w-full shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <h2 className="text-2xl md:text-3xl font-bold text-green-800 mb-4">
+                        🚫 No Trending Articles Found
+                    </h2>
+                    <p className="text-green-700 mb-6">
+                        Looks like there are no articles trending at the moment.
+                        Check back later for fresh, popular reads!
+                    </p>
+                    <button
+                        onClick={() => navigate("/")}
+                        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full shadow transition-all duration-200"
+                    >
+                        Go to Home
+                    </button>
+                </div>
+            </div>
+        );
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">
-                Trending Articles
+        <div className="w-full bg-[#e8f5e9] dark:bg-[#1e3b2b] py-14">
+            <h2 className="text-3xl md:text-4xl font-bold text-green-800 dark:text-green-100 mb-10 text-center">
+                🔥 Trending Articles
             </h2>
-            <ul className="space-y-6">
+
+            <Swiper
+                modules={[Autoplay, Pagination]}
+                spaceBetween={30}
+                slidesPerView={1}
+                autoplay={{ delay: 4500 }}
+                pagination={{ clickable: true }}
+                loop
+            >
                 {articles.map(({ _id, title, image, publisherName, views }) => (
-                    <li
-                        key={_id}
-                        onClick={() => navigate(`/article/${_id}`)}
-                        className="cursor-pointer flex items-center gap-4 p-4 border border-green-200 rounded-lg hover:shadow-md hover:border-green-400 transition"
-                    >
-                        <img
-                            src={image}
-                            alt={title}
-                            className="w-24 h-16 object-cover rounded-md flex-shrink-0"
-                        />
-                        <div className="flex-grow">
-                            <h3 className="text-lg font-semibold text-green-700">{title}</h3>
-                            <p className="text-green-600 text-sm">Publisher: {publisherName}</p>
-                            <p className="text-green-500 text-sm font-medium">Views: {views}</p>
+                    <SwiperSlide key={_id}>
+                        <div
+                            onClick={() => navigate(`/articles/${_id}`)}
+                            className="cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg transition-all duration-300 border border-green-100 overflow-hidden max-w-5xl mx-auto"
+                        >
+                            <img
+                                src={image}
+                                alt={title}
+                                className="w-full h-64 md:h-80 object-cover"
+                            />
+                            <div className="p-6 text-center">
+                                <h3 className="text-xl md:text-2xl font-semibold text-green-900 mb-2">
+                                    {title}
+                                </h3>
+                                <div className="flex justify-center gap-4 items-center text-sm">
+                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                        📰 {publisherName}
+                                    </span>
+                                    <span className="flex items-center gap-1 text-green-600 font-semibold">
+                                        <FiEye /> {views}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    </li>
+                    </SwiperSlide>
                 ))}
-            </ul>
+            </Swiper>
         </div>
     );
 };
