@@ -9,12 +9,16 @@ import {
     signOut
 } from 'firebase/auth';
 import { auth } from '../../firebase/firebase.init';
+import axios from 'axios'; // Make sure axios is installed
 
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const [role, setRole] = useState(null);
+    const [roleLoading, setRoleLoading] = useState(true);
 
     const createUser = (email, password) => {
         setLoading(true);
@@ -37,10 +41,24 @@ const AuthProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        const unSubscribe = onAuthStateChanged(auth, currentUser => {
+        const unSubscribe = onAuthStateChanged(auth, async currentUser => {
             setUser(currentUser);
-            console.log('user in the auth state change', currentUser);
             setLoading(false);
+
+            if (currentUser?.email) {
+                try {
+                    const res = await axios.get(`http://localhost:5000/users/role/${currentUser.email}`);
+                    setRole(res.data.role); // Make sure your backend sends: { role: 'admin' }
+                } catch (error) {
+                    console.error('Failed to fetch user role:', error);
+                    setRole(null);
+                } finally {
+                    setRoleLoading(false);
+                }
+            } else {
+                setRole(null);
+                setRoleLoading(false);
+            }
         });
 
         return () => {
@@ -51,6 +69,8 @@ const AuthProvider = ({ children }) => {
     const authInfo = {
         user,
         loading,
+        role,
+        roleLoading,
         createUser,
         signIn,
         signInWithGoogle,

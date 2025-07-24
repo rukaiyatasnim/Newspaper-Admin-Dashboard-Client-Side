@@ -18,40 +18,47 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import AllUser from "../Pages/Dashboard/AllUser";
 import AddPublisher from "../Pages/Dashboard/AddPublisher";
 import AllArticleDashboard from "../Pages/Dashboard/AllArticleDashboard";
+import AdminRoute from "../Routes/AdminRoute";
 
 export const router = createBrowserRouter([
     {
         path: "/",
-        Component: RootLayout,
+        element: <RootLayout />,
         children: [
-            { index: true, Component: Home },
-            { path: "addArticle", Component: AddArticles },
-            { path: "allArticle", Component: AllArticles },
-            { path: "articles/:id", Component: AllArticlesDetails },
-            { path: "MyArticles", Component: MyArticles },
-            { path: "premiumArticles", Component: PremiumArticles },
-            { path: "subscription", Component: Subscription },
-            { path: "profile", Component: Profile },
-            { path: "payment/:id", Component: Payment },
-            { path: "dashboard", Component: Dashboard },
+            { index: true, element: <Home /> },
+            { path: "addArticle", element: <AddArticles /> },
+            { path: "allArticle", element: <AllArticles /> },
+            { path: "articles/:id", element: <AllArticlesDetails /> },
+            { path: "MyArticles", element: <MyArticles /> },
+            { path: "premiumArticles", element: <PremiumArticles /> },
+            { path: "subscription", element: <Subscription /> },
+            { path: "profile", element: <Profile /> },
+            { path: "payment/:id", element: <Payment /> },
+            { path: "dashboard", element: <Dashboard /> },
         ],
     },
     {
         path: "/",
-        Component: AuthLayout,
+        element: <AuthLayout />,
         children: [
-            { path: "login", Component: Login },
-            { path: "register", Component: Register },
+            { path: "login", element: <Login /> },
+            { path: "register", element: <Register /> },
         ],
     },
     {
         path: "/dashboard",
-        Component: DashboardLayout,
+        element: (
+            <AdminRoute>
+                <DashboardLayout />
+            </AdminRoute>
+        ),
         children: [
-            { index: true, Component: Dashboard },           // Dashboard main page as default under /dashboard
-            { path: "allUser", Component: AllUser },
-            { path: "allArticleDashboard", Component: AllArticleDashboard },
-            { path: "addPublisher", Component: AddPublisher },
+            { index: true, element: <Dashboard /> },
+
+            { path: "allUser", element: <AllUser /> },
+            { path: "allArticleDashboard", element: <AllArticleDashboard /> },
+            { path: "addPublisher", element: <AddPublisher /> },
         ],
-    },
+    }
+
 ]);

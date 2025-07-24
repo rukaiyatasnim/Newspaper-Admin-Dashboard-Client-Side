@@ -1,12 +1,12 @@
 import React from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const AllUser = () => {
     const queryClient = useQueryClient();
 
     // Fetch all users
-    const { data: users = [], isLoading } = useQuery({
+    const { data: users = [], isLoading, isError, error } = useQuery({
         queryKey: ["users"],
         queryFn: async () => {
             const res = await axios.get("http://localhost:5000/users");
@@ -14,17 +14,30 @@ const AllUser = () => {
         },
     });
 
-    // Make admin
-    const { mutate: makeAdmin } = useMutation({
-        mutationFn: async (id) => {
-            return await axios.patch(`http://localhost:5000/users/admin/${id}`);
+    // Mutation to update user role
+    const { mutate: updateRole, isLoading: isUpdatingRole } = useMutation({
+        mutationFn: async ({ id, role }) => {
+            return await axios.patch(`http://localhost:5000/users/update-role/${id}`, { role });
         },
         onSuccess: () => {
             queryClient.invalidateQueries(["users"]);
+            alert("User role updated successfully!");
+        },
+        onError: (error) => {
+            alert(
+                error.response?.data?.message ||
+                "Failed to update user role. Please try again."
+            );
         },
     });
 
     if (isLoading) return <p className="text-center">Loading users...</p>;
+    if (isError)
+        return (
+            <p className="text-center text-red-600">
+                Error loading users: {error.message}
+            </p>
+        );
 
     return (
         <div className="p-6 bg-green-50 min-h-screen">
@@ -38,6 +51,7 @@ const AllUser = () => {
                             <th className="py-3 px-4">Name</th>
                             <th className="py-3 px-4">Email</th>
                             <th className="py-3 px-4">Role</th>
+                            <th className="py-3 px-4">Action</th> {/* Added Action column */}
                         </tr>
                     </thead>
                     <tbody>
@@ -53,15 +67,45 @@ const AllUser = () => {
                                 </td>
                                 <td className="py-3 px-4">{user.name}</td>
                                 <td className="py-3 px-4">{user.email}</td>
-                                <td className="py-3 px-4">
+                                <td className="py-3 px-4 font-semibold">
                                     {user.role === "admin" ? (
-                                        <span className="text-green-600 font-semibold">Admin</span>
+                                        <span className="text-green-600">Admin</span>
+                                    ) : (
+                                        <span>User</span>
+                                    )}
+                                </td>
+                                <td className="py-3 px-4">
+                                    {user.role !== "admin" ? (
+                                        <button
+                                            onClick={() => {
+                                                if (
+                                                    window.confirm(
+                                                        `Make ${user.name} an admin? This action cannot be undone.`
+                                                    )
+                                                ) {
+                                                    updateRole({ id: user._id, role: "admin" });
+                                                }
+                                            }}
+                                            disabled={isUpdatingRole}
+                                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isUpdatingRole ? "Processing..." : "Make Admin"}
+                                        </button>
                                     ) : (
                                         <button
-                                            onClick={() => makeAdmin(user._id)}
-                                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                            onClick={() => {
+                                                if (
+                                                    window.confirm(
+                                                        `Demote ${user.name} to user? This action cannot be undone.`
+                                                    )
+                                                ) {
+                                                    updateRole({ id: user._id, role: "user" });
+                                                }
+                                            }}
+                                            disabled={isUpdatingRole}
+                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            Make Admin
+                                            {isUpdatingRole ? "Processing..." : "Make User"}
                                         </button>
                                     )}
                                 </td>

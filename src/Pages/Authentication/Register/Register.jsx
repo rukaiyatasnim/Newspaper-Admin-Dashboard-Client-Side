@@ -5,11 +5,13 @@ import { Link } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import useAuth from '../../../Hooks/useAuth';
 
-
 const Register = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
     const { createUser } = useAuth();
-
 
     const onSubmit = async (data) => {
         try {
@@ -99,7 +101,21 @@ const Register = () => {
                         <input
                             id="password"
                             type="password"
-                            {...register('password', { required: 'Password is required' })}
+                            {...register('password', {
+                                required: 'Password is required',
+                                validate: {
+                                    minLength: (v) =>
+                                        v.length >= 6 || 'Password must be at least 6 characters',
+                                    hasUpperCase: (v) =>
+                                        /[A-Z]/.test(v) ||
+                                        'Password must contain at least one uppercase letter',
+                                    hasSpecialChar: (v) =>
+                                        /[!@#$%^&*(),.?":{}|<>]/.test(v) ||
+                                        'Password must contain at least one special character',
+                                    hasNumber: (v) =>
+                                        /\d/.test(v) || 'Password must contain at least one number',
+                                },
+                            })}
                             className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? 'border-red-500' : 'border-green-300'
                                 }`}
                             placeholder="Your password"
@@ -121,7 +137,7 @@ const Register = () => {
                         <Link to="/login" className="text-green-600 font-semibold hover:underline ml-1">
                             Login
                         </Link>
-                        <SocialLogin></SocialLogin>
+                        <SocialLogin />
                     </p>
                 </form>
             </div>

@@ -59,78 +59,53 @@ const PremiumArticles = () => {
 
     return (
         <div style={{ padding: '2rem', backgroundColor: '#e6f4ea', minHeight: '100vh' }}>
+            <h2 style={{ color: '#2e7d32', textAlign: 'center', marginBottom: '2rem' }}>🌿 Premium Articles</h2>
             {articles.length === 0 ? (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '60vh',
-                        backgroundColor: '#f1f8f4',
-                        border: '2px dashed #a5d6a7',
-                        borderRadius: '12px',
-                        padding: '2rem',
-                        textAlign: 'center',
-                        boxShadow: '0 2px 12px rgba(76, 175, 80, 0.15)',
-                    }}
-                >
-                    <h2 style={{ color: '#2e7d32', fontSize: '2rem', marginBottom: '1rem' }}>🌿 Premium Articles</h2>
-                    <p style={{ color: '#388e3c', fontSize: '1.2rem' }}>No premium articles available.</p>
-                </div>
+                <p style={{ textAlign: 'center', color: '#388e3c' }}>No premium articles available.</p>
             ) : (
-                <>
-                    <h2 style={{ color: '#2e7d32', textAlign: 'center', marginBottom: '2rem' }}>🌿 Premium Articles</h2>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))',
-                            gap: '1.5rem',
-                        }}
-                    >
-                        {articles.map((article) => (
-                            <div
-                                key={article._id}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1.5rem' }}>
+                    {articles.map((article) => (
+                        <div
+                            key={article._id}
+                            style={{
+                                backgroundColor: '#f1f8f4',
+                                border: '1px solid #a5d6a7',
+                                padding: '1.2rem',
+                                borderRadius: '12px',
+                                boxShadow: '0 2px 8px rgba(46, 125, 50, 0.15)'
+                            }}
+                        >
+                            <img
+                                src={article.image}
+                                alt={article.title}
                                 style={{
-                                    backgroundColor: '#f1f8f4',
-                                    border: '1px solid #a5d6a7',
-                                    padding: '1.2rem',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 2px 8px rgba(46, 125, 50, 0.15)',
+                                    width: '100%',
+                                    height: '150px',
+                                    objectFit: 'cover',
+                                    borderRadius: '6px',
+                                    marginBottom: '1rem'
+                                }}
+                            />
+                            <h3 style={{ color: '#2e7d32' }}>{article.title}</h3>
+                            <p><strong>Publisher:</strong> {article.publisherName}</p>
+                            <p>{article.description}</p>
+                            <button
+                                onClick={() => navigate(`/articles/${article._id}`)}
+                                style={{
+                                    backgroundColor: '#66bb6a',
+                                    border: 'none',
+                                    color: 'white',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    marginTop: '0.5rem'
                                 }}
                             >
-                                <img
-                                    src={article.image}
-                                    alt={article.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '150px',
-                                        objectFit: 'cover',
-                                        borderRadius: '6px',
-                                        marginBottom: '1rem',
-                                    }}
-                                />
-                                <h3 style={{ color: '#2e7d32' }}>{article.title}</h3>
-                                <p><strong>Publisher:</strong> {article.publisherName}</p>
-                                <p>{article.description}</p>
-                                <button
-                                    onClick={() => navigate(`/articles/${article._id}`)}
-                                    style={{
-                                        backgroundColor: '#66bb6a',
-                                        border: 'none',
-                                        color: 'white',
-                                        padding: '0.5rem 1rem',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer',
-                                        marginTop: '0.5rem',
-                                    }}
-                                >
-                                    Details
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </>
+                                Details
+                            </button>
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
