@@ -68,14 +68,17 @@ const AllArticleDashboard = () => {
 
     const handleMakePremium = async (id) => {
         try {
-            await axios.patch(`http://localhost:5000/admin/articles/${id}/make-premium`);
-            Swal.fire("Premium", "Article marked as premium", "success");
-            setArticles(articles.map(article => article._id === id ? { ...article, isPremium: true } : article));
+            await axios.patch(`http://localhost:5000/admin/articles/${id}/toggle-premium`);
+            Swal.fire("Success", "Article premium status toggled", "success");
+            setArticles(articles.map(article =>
+                article._id === id ? { ...article, isPremium: !article.isPremium } : article
+            ));
         } catch (error) {
             console.error(error);
-            Swal.fire("Error", "Failed to mark as premium", "error");
+            Swal.fire("Error", "Failed to toggle premium status", "error");
         }
     };
+
 
     if (loading) return <p className="text-center mt-10">Loading...</p>;
 
@@ -128,10 +131,11 @@ const AllArticleDashboard = () => {
                                     {!article.isPremium && (
                                         <button
                                             onClick={() => handleMakePremium(article._id)}
-                                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded"
+                                            className={`px-3 py-1 rounded text-white ${article.isPremium ? "bg-gray-600 hover:bg-gray-700" : "bg-indigo-600 hover:bg-indigo-700"}`}
                                         >
-                                            Make Premium
+                                            {article.isPremium ? "Remove Premium" : "Make Premium"}
                                         </button>
+
                                     )}
                                 </td>
                             </tr>
