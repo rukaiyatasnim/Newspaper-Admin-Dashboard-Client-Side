@@ -15,10 +15,7 @@ const PremiumArticles = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (authLoading) {
-            // Don't fetch yet, wait for auth to finish loading
-            return;
-        }
+        if (authLoading) return;
 
         if (!user?.email) {
             setError('User email missing');
@@ -61,26 +58,79 @@ const PremiumArticles = () => {
     }
 
     return (
-        <div>
-            <h2>Premium Articles</h2>
+        <div style={{ padding: '2rem', backgroundColor: '#e6f4ea', minHeight: '100vh' }}>
             {articles.length === 0 ? (
-                <p>No premium articles available.</p>
-            ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1rem' }}>
-                    {articles.map((article) => (
-                        <div key={article._id} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' }}>
-                            <img
-                                src={article.image}
-                                alt={article.title}
-                                style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }}
-                            />
-                            <h3>{article.title}</h3>
-                            <p>Publisher: {article.publisherName}</p>
-                            <p>{article.description}</p>
-                            <button onClick={() => navigate(`/articles/${article._id}`)}>Details</button>
-                        </div>
-                    ))}
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '60vh',
+                        backgroundColor: '#f1f8f4',
+                        border: '2px dashed #a5d6a7',
+                        borderRadius: '12px',
+                        padding: '2rem',
+                        textAlign: 'center',
+                        boxShadow: '0 2px 12px rgba(76, 175, 80, 0.15)',
+                    }}
+                >
+                    <h2 style={{ color: '#2e7d32', fontSize: '2rem', marginBottom: '1rem' }}>🌿 Premium Articles</h2>
+                    <p style={{ color: '#388e3c', fontSize: '1.2rem' }}>No premium articles available.</p>
                 </div>
+            ) : (
+                <>
+                    <h2 style={{ color: '#2e7d32', textAlign: 'center', marginBottom: '2rem' }}>🌿 Premium Articles</h2>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))',
+                            gap: '1.5rem',
+                        }}
+                    >
+                        {articles.map((article) => (
+                            <div
+                                key={article._id}
+                                style={{
+                                    backgroundColor: '#f1f8f4',
+                                    border: '1px solid #a5d6a7',
+                                    padding: '1.2rem',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 2px 8px rgba(46, 125, 50, 0.15)',
+                                }}
+                            >
+                                <img
+                                    src={article.image}
+                                    alt={article.title}
+                                    style={{
+                                        width: '100%',
+                                        height: '150px',
+                                        objectFit: 'cover',
+                                        borderRadius: '6px',
+                                        marginBottom: '1rem',
+                                    }}
+                                />
+                                <h3 style={{ color: '#2e7d32' }}>{article.title}</h3>
+                                <p><strong>Publisher:</strong> {article.publisherName}</p>
+                                <p>{article.description}</p>
+                                <button
+                                    onClick={() => navigate(`/articles/${article._id}`)}
+                                    style={{
+                                        backgroundColor: '#66bb6a',
+                                        border: 'none',
+                                        color: 'white',
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        marginTop: '0.5rem',
+                                    }}
+                                >
+                                    Details
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </>
             )}
         </div>
     );
