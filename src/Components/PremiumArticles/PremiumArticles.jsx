@@ -5,27 +5,27 @@ import useAuth from '../../Hooks/useAuth';
 
 const PremiumArticles = () => {
     const { user, loading: authLoading } = useAuth();
-
-    const [articles, setArticles] = useState([]);
-    const [userInfo, setUserInfo] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+
+    const [userInfo, setUserInfo] = useState(null);
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (authLoading) return;
 
         if (!user?.email) {
-            setError('User email missing');
+            setError('User email not found.');
             setLoading(false);
             return;
         }
 
-        const fetchData = async () => {
+        const loadData = async () => {
             try {
                 setLoading(true);
+
                 const { data: userData } = await axiosSecure.get(`/users/${encodeURIComponent(user.email)}`);
                 setUserInfo(userData);
 
@@ -38,68 +38,70 @@ const PremiumArticles = () => {
                 } else {
                     setArticles([]);
                 }
+
                 setError(null);
             } catch (err) {
-                setError('Failed to load data');
                 console.error(err);
+                setError('Failed to load premium articles.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
-    }, [axiosSecure, user, authLoading]);
+        loadData();
+    }, [user, axiosSecure, authLoading]);
 
-    if (authLoading || loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
+    if (authLoading || loading) {
+        return <div className="text-center py-10">Loading...</div>;
+    }
 
     if (!userInfo?.premiumTaken || new Date(userInfo.premiumTaken) <= new Date()) {
-        return <div>You do not have an active premium subscription.</div>;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+                <div className="bg-red-100 border border-red-300 p-10 rounded-lg max-w-md w-full shadow">
+                    <div className="text-6xl mb-4">🔒</div>
+                    <h2 className="text-2xl font-bold text-red-700 mb-3">No Active Premium Subscription</h2>
+                    <p className="text-red-600 mb-6">
+                        Subscribe now to unlock exclusive premium articles.
+                    </p>
+                    <button
+                        onClick={() => navigate('/subscription')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded transition"
+                    >
+                        Go to Subscription
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div style={{ padding: '2rem', backgroundColor: '#e6f4ea', minHeight: '100vh' }}>
-            <h2 style={{ color: '#2e7d32', textAlign: 'center', marginBottom: '2rem' }}>🌿 Premium Articles</h2>
+        <div className="min-h-screen bg-green-50 p-6">
+            <h1 className="text-3xl font-semibold text-center text-green-800 mb-8">
+                🌿 Premium Articles
+            </h1>
             {articles.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#388e3c' }}>No premium articles available.</p>
+                <p className="text-center text-green-700">No premium articles available yet.</p>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1.5rem' }}>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {articles.map((article) => (
                         <div
                             key={article._id}
-                            style={{
-                                backgroundColor: '#f1f8f4',
-                                border: '1px solid #a5d6a7',
-                                padding: '1.2rem',
-                                borderRadius: '12px',
-                                boxShadow: '0 2px 8px rgba(46, 125, 50, 0.15)'
-                            }}
+                            className="bg-white rounded-lg shadow border border-green-200 p-4"
                         >
                             <img
                                 src={article.image}
                                 alt={article.title}
-                                style={{
-                                    width: '100%',
-                                    height: '150px',
-                                    objectFit: 'cover',
-                                    borderRadius: '6px',
-                                    marginBottom: '1rem'
-                                }}
+                                className="h-40 w-full object-cover rounded mb-4"
                             />
-                            <h3 style={{ color: '#2e7d32' }}>{article.title}</h3>
-                            <p><strong>Publisher:</strong> {article.publisherName}</p>
-                            <p>{article.description}</p>
+                            <h3 className="text-xl font-bold text-green-800">{article.title}</h3>
+                            <p className="text-sm text-gray-600">
+                                <strong>Publisher:</strong> {article.publisherName}
+                            </p>
+                            <p className="my-2 text-gray-700">{article.description}</p>
                             <button
                                 onClick={() => navigate(`/articles/${article._id}`)}
-                                style={{
-                                    backgroundColor: '#66bb6a',
-                                    border: 'none',
-                                    color: 'white',
-                                    padding: '0.5rem 1rem',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    marginTop: '0.5rem'
-                                }}
+                                className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded mt-2"
                             >
                                 Details
                             </button>

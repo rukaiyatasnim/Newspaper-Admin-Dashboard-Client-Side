@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import useAuth from "../../Hooks/useAuth";
+
+// ✅ adjust based on your auth setup (replace with your context)
 
 const AddArticle = () => {
+    const { user } = useAuth(); // ✅ Get logged-in user email
     const [publishers, setPublishers] = useState([]);
+
     const {
         register,
         handleSubmit,
@@ -18,15 +23,21 @@ const AddArticle = () => {
     }, []);
 
     const onSubmit = async (data) => {
+        if (!user?.email) {
+            alert("You must be logged in to submit an article.");
+            return;
+        }
+
         try {
             const article = {
                 title: data.title,
                 description: data.description,
                 longDescription: data.longDescription || "",
-                publisher: data.publisher, // this is ObjectId string now
+                publisher: data.publisher, // ObjectId string
                 tags: data.tags ? data.tags.split(",").map((t) => t.trim()) : [],
                 image: data.imageUrl,
                 isPremium: data.isPremium || false,
+                authorEmail: user.email, // ✅ required for backend
             };
 
             console.log("Submitting article:", article);
@@ -75,15 +86,12 @@ const AddArticle = () => {
                     {...register("longDescription")}
                 />
 
-                {/* Publisher select dropdown instead of text input */}
                 <select
                     className="input input-bordered w-full"
                     {...register("publisher", { required: "Publisher is required" })}
                     defaultValue=""
                 >
-                    <option value="" disabled>
-                        Select Publisher
-                    </option>
+                    <option value="" disabled>Select Publisher</option>
                     {publishers.map((pub) => (
                         <option key={pub._id} value={pub._id}>
                             {pub.name}
