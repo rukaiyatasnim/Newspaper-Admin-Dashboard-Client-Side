@@ -70,7 +70,7 @@ const AllArticleDashboard = () => {
     const handleMakePremium = async (id) => {
         try {
             await axios.patch(`http://localhost:5000/admin/articles/${id}/toggle-premium`);
-            Swal.fire("Success", "Article premium status toggled", "success");
+            Swal.fire("Success", "Turned Into Premium", "success");
             setArticles(articles.map(article =>
                 article._id === id ? { ...article, isPremium: !article.isPremium } : article
             ));
@@ -81,7 +81,7 @@ const AllArticleDashboard = () => {
     };
 
 
-    if (loading) return <Loader></Loader>;
+    if (loading) return <Loader />;
 
     return (
         <div className="max-w-7xl mx-auto p-4">

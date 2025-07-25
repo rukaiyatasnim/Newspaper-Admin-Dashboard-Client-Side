@@ -30,9 +30,14 @@ const Login = () => {
                 text: 'Welcome back to Newsly Newspaper!',
                 confirmButtonColor: '#16a34a',
                 confirmButtonText: 'Go to Home',
-            }).then(() => {
-                navigate('/');
+                timer: 2000, // Optional: Auto-close after 2s
+                showConfirmButton: false, // Optional: hides button
             });
+
+            // Redirect after short delay to allow the SweetAlert to show
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
 
         } catch (error) {
             console.error(error);

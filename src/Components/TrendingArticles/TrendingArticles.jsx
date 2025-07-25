@@ -22,7 +22,7 @@ const TrendingArticles = () => {
                 setLoading(true);
                 const { data } = await axios.get("/articles/trending");
                 const filtered = data.filter(article => article.views > 0);
-                setArticles(filtered.slice(0, 6)); // Limit to 6 articles only
+                setArticles(filtered.slice(0, 7));
             } catch (err) {
                 console.error(err);
                 setError("Failed to load trending articles.");
