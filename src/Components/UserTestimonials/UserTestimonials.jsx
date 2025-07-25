@@ -8,6 +8,7 @@ const testimonials = [
             "Newsly has transformed how I stay updated with news. The premium content is top-notch!",
     },
     {
+        
         name: "Sabrina Akter",
         photo: "https://randomuser.me/api/portraits/women/44.jpg",
         feedback:
