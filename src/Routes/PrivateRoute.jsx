@@ -1,16 +1,20 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom'; 
-import useAuth from '../Hooks/useAuth';
+import React, { useContext } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../Context/AuthContext/AuthContext';
+import Loader from '../Pages/Shared/Loader/Loader'; // Adjust path if needed
 
 const PrivateRoute = ({ children }) => {
-    const { user, loading } = useAuth();
+    const { user, loading } = useContext(AuthContext);
+    const location = useLocation();
 
+    // 🚩 Show loader while Firebase is checking user on page refresh
     if (loading) {
-        return <span className="loading loading-spinner loading-xl"></span>;
+        return <Loader />;
     }
 
     if (!user) {
-        return <Navigate to="/login" />;
+        // Save current location for redirect after login
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return children;

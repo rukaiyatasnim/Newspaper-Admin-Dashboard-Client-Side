@@ -44,7 +44,6 @@ const AddArticle = () => {
                 authorEmail: user.email, // required for backend
             };
 
-            console.log("Submitting article:", article);
 
             const res = await fetch("http://localhost:5000/addArticle", {
                 method: "POST",

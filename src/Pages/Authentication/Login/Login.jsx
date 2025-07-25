@@ -1,26 +1,42 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
+import Swal from 'sweetalert2';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import useAuth from '../../../Hooks/useAuth';
 
 const Login = () => {
+    const navigate = useNavigate();
     const { signIn } = useAuth();
-
 
     const {
         register,
         handleSubmit,
+        formState: { errors },
     } = useForm();
 
     const onSubmit = async (data) => {
         try {
             await signIn(data.email, data.password);
-            alert('Login successful!');
-            // Optionally navigate to dashboard or homepage
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Successful!',
+                text: 'Welcome back to BookiQ Newspaper!',
+                confirmButtonColor: '#16a34a',
+                confirmButtonText: 'Go to Home',
+            }).then(() => {
+                navigate('/');
+            });
+
         } catch (error) {
             console.error(error);
-            alert(error.message || 'Login failed');
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: error.message || 'Invalid credentials or network issue.',
+                confirmButtonColor: '#dc2626',
+            });
         }
     };
 
@@ -37,10 +53,10 @@ const Login = () => {
                         <input
                             type="email"
                             placeholder="Enter your email"
-                            className="input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400"
-                            required
-                            {...register("email")}
+                            className={`input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.email ? 'border-red-500' : ''}`}
+                            {...register("email", { required: "Email is required" })}
                         />
+                        {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
                     </div>
 
                     <div className="form-control">
@@ -50,10 +66,11 @@ const Login = () => {
                         <input
                             type="password"
                             placeholder="Enter your password"
-                            className="input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400"
-                            required
-                            {...register("password")}
+                            className={`input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? 'border-red-500' : ''}`}
+                            {...register("password", { required: "Password is required" })}
                         />
+                        {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
+
                         <label className="label">
                             <Link to="/forgot-password" className="label-text-alt text-green-600 hover:underline">
                                 Forgot password?

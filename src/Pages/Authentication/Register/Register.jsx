@@ -1,11 +1,14 @@
 import React from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import useAuth from '../../../Hooks/useAuth';
 
 const Register = () => {
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -27,11 +30,25 @@ const Register = () => {
                 role: 'user',
             });
 
-            alert('Registered successfully!');
-            // Optionally navigate to login or dashboard
+            // ✅ Show SweetAlert and navigate to home after confirmation
+            Swal.fire({
+                icon: 'success',
+                title: 'Registered Successfully!',
+                text: 'Welcome to BookiQ Newspaper!',
+                confirmButtonColor: '#16a34a',
+                confirmButtonText: 'Go to Home',
+            }).then(() => {
+                navigate('/');
+            });
+
         } catch (error) {
             console.error(error);
-            alert(error.message || 'Registration failed');
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                text: error.message || 'Something went wrong',
+                confirmButtonColor: '#dc2626',
+            });
         }
     };
 
@@ -50,8 +67,7 @@ const Register = () => {
                         <input
                             id="name"
                             {...register('name', { required: 'Name is required' })}
-                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.name ? 'border-red-500' : 'border-green-300'
-                                }`}
+                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.name ? 'border-red-500' : 'border-green-300'}`}
                             placeholder="Your full name"
                         />
                         {errors.name && (
@@ -73,8 +89,7 @@ const Register = () => {
                                     message: 'Invalid email address',
                                 },
                             })}
-                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.email ? 'border-red-500' : 'border-green-300'
-                                }`}
+                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.email ? 'border-red-500' : 'border-green-300'}`}
                             placeholder="you@example.com"
                         />
                         {errors.email && (
@@ -107,17 +122,14 @@ const Register = () => {
                                     minLength: (v) =>
                                         v.length >= 6 || 'Password must be at least 6 characters',
                                     hasUpperCase: (v) =>
-                                        /[A-Z]/.test(v) ||
-                                        'Password must contain at least one uppercase letter',
+                                        /[A-Z]/.test(v) || 'Must contain at least one uppercase letter',
                                     hasSpecialChar: (v) =>
-                                        /[!@#$%^&*(),.?":{}|<>]/.test(v) ||
-                                        'Password must contain at least one special character',
+                                        /[!@#$%^&*(),.?":{}|<>]/.test(v) || 'Must contain at least one special character',
                                     hasNumber: (v) =>
-                                        /\d/.test(v) || 'Password must contain at least one number',
+                                        /\d/.test(v) || 'Must contain at least one number',
                                 },
                             })}
-                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? 'border-red-500' : 'border-green-300'
-                                }`}
+                            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? 'border-red-500' : 'border-green-300'}`}
                             placeholder="Your password"
                         />
                         {errors.password && (
@@ -137,8 +149,8 @@ const Register = () => {
                         <Link to="/login" className="text-green-600 font-semibold hover:underline ml-1">
                             Login
                         </Link>
-                        <SocialLogin />
                     </p>
+                    <SocialLogin />
                 </form>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "../../Pages/Shared/Loader/Loader";
 
 // Set your backend base URL here if needed
 axios.defaults.baseURL = "http://localhost:5000";
@@ -35,7 +36,7 @@ const AllArticlesDetails = () => {
         fetchArticle();
     }, [id]);
 
-    if (loading) return <p className="text-center mt-20 text-green-700">Loading article details...</p>;
+    if (loading) return <Loader></Loader>;
     if (error) return <p className="text-center mt-20 text-red-600">{error}</p>;
     if (!article) return <p className="text-center mt-20 text-green-700">Article not found.</p>;
 
