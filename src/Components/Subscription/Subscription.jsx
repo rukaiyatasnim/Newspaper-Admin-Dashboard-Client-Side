@@ -41,7 +41,7 @@ const Subscription = () => {
                     </p>
                 </div>
                 <img
-                    src="https://img.freepik.com/free-vector/premium-quality-badge-golden_1017-27587.jpg"
+                    src="https://i.ibb.co/LXSRZ65D/images.jpg"
                     alt="Premium"
                     className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-yellow-300 shadow-inner object-cover"
                 />

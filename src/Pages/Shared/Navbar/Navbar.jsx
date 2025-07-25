@@ -219,16 +219,19 @@ const Navbar = () => {
                 <div className="navbar-end flex items-center space-x-4">
                     {user ? (
                         <>
+
                             <div className="relative flex flex-col items-center group">
-                                <img
-                                    src={
-                                        user.photoURL ||
-                                        "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
-                                    }
-                                    alt={user.displayName || "User Avatar"}
-                                    className="w-10 h-10 rounded-full cursor-pointer border-2 border-green-600"
-                                    title={user.displayName || user.email}
-                                />
+                                <Link to="/profile">
+                                    <img
+                                        src={
+                                            user.photoURL ||
+                                            "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg"
+                                        }
+                                        alt={user.displayName || "User Avatar"}
+                                        className="w-10 h-10 rounded-full cursor-pointer border-2 border-green-600"
+                                        title={user.displayName || user.email}
+                                    />
+                                </Link>
                                 <span className="absolute top-12 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                     {user.displayName}
                                 </span>

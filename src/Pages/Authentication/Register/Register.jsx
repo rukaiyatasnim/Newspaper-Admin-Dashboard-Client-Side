@@ -22,14 +22,7 @@ const Register = () => {
             const userCredential = await createUser(data.email, data.password, data.name);
             const user = userCredential.user;
 
-            // No need to call backend again here to save user if you have saveUserToDB inside createUser / AuthProvider
-            // But if you still want, you can do:
-            // await axios.post('http://localhost:5000/users', {
-            //     name: data.name,
-            //     email: data.email,
-            //     photo: data.photo,
-            //     role: 'user',
-            // });
+         
 
             Swal.fire({
                 icon: 'success',
