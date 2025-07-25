@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import useAuth from '../../Hooks/useAuth';
+import Loader from '../../Pages/Shared/Loader/Loader';
 
 const PremiumArticles = () => {
     const { user, loading: authLoading } = useAuth();
@@ -52,7 +53,7 @@ const PremiumArticles = () => {
     }, [user, axiosSecure, authLoading]);
 
     if (authLoading || loading) {
-        return <div className="text-center py-10">Loading...</div>;
+        return <Loader></Loader>;
     }
 
     if (!userInfo?.premiumTaken || new Date(userInfo.premiumTaken) <= new Date()) {

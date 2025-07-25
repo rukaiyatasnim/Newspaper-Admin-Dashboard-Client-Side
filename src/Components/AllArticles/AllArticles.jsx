@@ -5,7 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { FiSearch } from "react-icons/fi";
 import useAuth from "../../Hooks/useAuth";
-import { Helmet } from "react-helmet";
+import { Helmet } from 'react-helmet-async';
+import Swal from "sweetalert2";
+import Loader from "../../Pages/Shared/Loader/Loader";
 
 axios.defaults.baseURL = "http://localhost:5000";
 
@@ -26,7 +28,7 @@ const tagsOptions = [
 
 export default function AllArticles() {
     const navigate = useNavigate();
-    const { user, isPremium } = useAuth();  // Get user + premium status from your auth hook
+    const { user, isPremium } = useAuth();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedPublisher, setSelectedPublisher] = useState(null);
@@ -59,21 +61,28 @@ export default function AllArticles() {
     };
 
     const handleDetailsClick = (article) => {
-        if (article.isPremium && !isPremium) return; // disable click if user not premium
+        if (article.isPremium && !isPremium) {
+            Swal.fire({
+                icon: "info",
+                title: "Premium Content",
+                text: "This article is for premium members only. Please subscribe to access premium content.",
+                confirmButtonText: "OK",
+                confirmButtonColor: "#16a34a",
+            });
+            return;
+        }
         navigate(`/articles/${article._id}`);
     };
 
-    if (isLoading) return <p className="text-center text-green-700">Loading articles...</p>;
+    if (isLoading) return <Loader></Loader>;
     if (isError) return <p className="text-center text-red-600">Failed to load articles.</p>;
 
     return (
         <>
-
             <Helmet>
                 <title>All Articles</title>
                 <meta name="description" content="Submit your articles and share knowledge on BookiQ." />
             </Helmet>
-
 
             <div className="max-w-7xl mx-auto px-4 py-10">
                 <h1 className="text-4xl font-bold text-green-800 mb-6 text-center">
@@ -112,7 +121,7 @@ export default function AllArticles() {
                     </div>
                 </div>
 
-                {/* Articles or No Articles Card */}
+                {/* Articles or No Articles */}
                 {articles.length === 0 ? (
                     <div className="flex justify-center">
                         <div className="max-w-md w-full bg-white border border-green-300 rounded-lg shadow p-8 text-center">
@@ -192,6 +201,6 @@ export default function AllArticles() {
                     </div>
                 )}
             </div>
-
-        </>);
+        </>
+    );
 }

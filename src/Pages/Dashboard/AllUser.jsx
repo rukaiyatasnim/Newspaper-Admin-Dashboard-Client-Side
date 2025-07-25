@@ -1,6 +1,8 @@
 import React from "react";
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+import Loader from "../Shared/Loader/Loader";
 
 const AllUser = () => {
     const queryClient = useQueryClient();
@@ -21,17 +23,44 @@ const AllUser = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(["users"]);
-            alert("User role updated successfully!");
+            Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: "User role updated successfully!",
+                timer: 1500,
+                showConfirmButton: false,
+                position: "top-end",
+                toast: true,
+            });
         },
         onError: (error) => {
-            alert(
-                error.response?.data?.message ||
-                "Failed to update user role. Please try again."
-            );
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.response?.data?.message || "Failed to update user role. Please try again.",
+            });
         },
     });
 
-    if (isLoading) return <p className="text-center">Loading users...</p>;
+    const handleRoleChange = (user, newRole) => {
+        Swal.fire({
+            title: newRole === "admin"
+                ? `Make ${user.name} an admin?`
+                : `Demote ${user.name} to user?`,
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: newRole === "admin" ? "#16a34a" : "#dc2626",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: newRole === "admin" ? "Yes, make admin" : "Yes, make user",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateRole({ id: user._id, role: newRole });
+            }
+        });
+    };
+
+    if (isLoading) return <Loader></Loader>;
     if (isError)
         return (
             <p className="text-center text-red-600">
@@ -51,7 +80,7 @@ const AllUser = () => {
                             <th className="py-3 px-4">Name</th>
                             <th className="py-3 px-4">Email</th>
                             <th className="py-3 px-4">Role</th>
-                            <th className="py-3 px-4">Action</th> {/* Added Action column */}
+                            <th className="py-3 px-4">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -77,15 +106,7 @@ const AllUser = () => {
                                 <td className="py-3 px-4">
                                     {user.role !== "admin" ? (
                                         <button
-                                            onClick={() => {
-                                                if (
-                                                    window.confirm(
-                                                        `Make ${user.name} an admin? This action cannot be undone.`
-                                                    )
-                                                ) {
-                                                    updateRole({ id: user._id, role: "admin" });
-                                                }
-                                            }}
+                                            onClick={() => handleRoleChange(user, "admin")}
                                             disabled={isUpdatingRole}
                                             className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
@@ -93,15 +114,7 @@ const AllUser = () => {
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => {
-                                                if (
-                                                    window.confirm(
-                                                        `Demote ${user.name} to user? This action cannot be undone.`
-                                                    )
-                                                ) {
-                                                    updateRole({ id: user._id, role: "user" });
-                                                }
-                                            }}
+                                            onClick={() => handleRoleChange(user, "user")}
                                             disabled={isUpdatingRole}
                                             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >

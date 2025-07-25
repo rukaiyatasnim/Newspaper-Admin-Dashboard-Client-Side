@@ -208,7 +208,7 @@ const Navbar = () => {
                         to="/"
                         className="btn btn-ghost normal-case text-2xl font-extrabold tracking-wide text-green-700"
                     >
-                        BookiQ
+                        Newsly
                     </Link>
                 </div>
 

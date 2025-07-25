@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Loader from "../../Pages/Shared/Loader/Loader"
 
 const AllPublishers = () => {
     const [publishers, setPublishers] = useState([]);
@@ -23,11 +24,7 @@ const AllPublishers = () => {
     }, []);
 
     if (loading) {
-        return (
-            <div className="text-center mt-10 text-green-700 font-semibold">
-                Loading publishers...
-            </div>
-        );
+        return <Loader></Loader>
     }
 
     if (error) {

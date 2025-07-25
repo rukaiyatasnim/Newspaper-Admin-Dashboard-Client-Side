@@ -119,10 +119,6 @@ const PaymentForm = () => {
     return (
         <>
 
-            <Helmet>
-                <title>Subscription</title>
-                <meta name="description" content="Submit your articles and share knowledge on BookiQ." />
-            </Helmet>
 
             <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
                 <h2 className="text-2xl font-semibold mb-6 text-green-800 text-center">

@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import Loader from "../../Pages/Shared/Loader/Loader";
 
 axios.defaults.baseURL = "http://localhost:5000";
 
@@ -34,11 +35,7 @@ const TrendingArticles = () => {
     }, []);
 
     if (loading)
-        return (
-            <p className="text-center mt-10 text-green-700 font-medium">
-                Loading trending articles...
-            </p>
-        );
+        return <Loader></Loader>
 
     if (error)
         return (
@@ -59,10 +56,10 @@ const TrendingArticles = () => {
                         Check back later for fresh, popular reads!
                     </p>
                     <button
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/addArticle")}
                         className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full shadow transition-all duration-200"
                     >
-                        Go to Home
+                        Go to Add Article
                     </button>
                 </div>
             </div>

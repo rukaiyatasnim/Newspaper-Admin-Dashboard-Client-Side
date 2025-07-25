@@ -1,201 +1,129 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useForm } from "react-hook-form";
-import useAuth from "../../Hooks/useAuth";
-import NoArticlesBanner from "./NoArticleBanner";
+import React, { useEffect, useState } from 'react';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAuth from '../../Hooks/useAuth';
+import Swal from 'sweetalert2';
+import { Link } from 'react-router-dom';
 
 const MyArticles = () => {
-    const { user, loading: authLoading } = useAuth();
-
-    const [articles, setArticles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    const [publishers, setPublishers] = useState([]);
-
-    // Modal state
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [editArticleId, setEditArticleId] = useState(null);
-
-    const {
-        register,
-        handleSubmit,
-        reset,
-        setValue,
-        formState: { errors, isSubmitting },
-    } = useForm();
+    const { user } = useAuth();
+    const [myArticles, setMyArticles] = useState([]);
+    const [editModal, setEditModal] = useState({ open: false, article: null });
+    const [reasonModal, setReasonModal] = useState({ open: false, reason: "" });
+    const [updatedTitle, setUpdatedTitle] = useState("");
+    const [updatedDescription, setUpdatedDescription] = useState("");
+    const axiosSecure = useAxiosSecure();
 
     useEffect(() => {
-        if (authLoading || !user?.email) return;
+        if (user?.email) {
+            axiosSecure.get(`/myArticles/${user.email}`)
+                .then(res => setMyArticles(res.data))
+                .catch(err => console.error(err));
+        }
+    }, [user?.email, axiosSecure]);
 
-        const fetchArticles = async () => {
-            try {
-                const res = await axios.get(
-                    `http://localhost:5000/myArticles/${user.email.toLowerCase()}`
-                );
-                setArticles(res.data);
-                setLoading(false);
-            } catch (err) {
-                setError("Failed to load articles.");
-                setLoading(false);
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to delete this article?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axiosSecure.delete(`/articles/${id}`)
+                    .then(() => {
+                        setMyArticles(prev => prev.filter(item => item._id !== id));
+                        Swal.fire("Deleted!", "Your article has been deleted.", "success");
+                    })
+                    .catch(() => {
+                        Swal.fire("Error!", "Failed to delete article.", "error");
+                    });
             }
-        };
-
-        fetchArticles();
-    }, [user, authLoading]);
-
-    useEffect(() => {
-        axios
-            .get("http://localhost:5000/publishers")
-            .then((res) => setPublishers(res.data))
-            .catch(() => { });
-    }, []);
-
-    const openEditModal = (article) => {
-        setEditArticleId(article._id);
-
-        setValue("title", article.title);
-        setValue("description", article.description);
-        setValue("longDescription", article.longDescription || "");
-        setValue("publisher", article.publisherId || article.publisher || "");
-        setValue("tags", article.tags ? article.tags.join(", ") : "");
-        setValue("imageUrl", article.image || "");
-        setValue("isPremium", article.isPremium || false);
-
-        setEditModalOpen(true);
+        });
     };
 
-    const closeEditModal = () => {
-        setEditModalOpen(false);
-        setEditArticleId(null);
-        reset();
-    };
-
-    const onUpdateSubmit = async (data) => {
-        if (!editArticleId) return;
-
-        try {
-            const updatedData = {
-                title: data.title,
-                description: data.description,
-                longDescription: data.longDescription || "",
-                publisher: data.publisher,
-                tags: data.tags ? data.tags.split(",").map((t) => t.trim()) : [],
-                image: data.imageUrl,
-                isPremium: data.isPremium || false,
-            };
-
-            await axios.patch(
-                `http://localhost:5000/articles/${editArticleId}`,
-                updatedData
-            );
-
-            setArticles((prev) =>
-                prev.map((art) =>
-                    art._id === editArticleId
-                        ? { ...art, ...updatedData, publisherId: updatedData.publisher }
-                        : art
+    const handleUpdate = () => {
+        axiosSecure.patch(`/articles/${editModal.article._id}`, {
+            title: updatedTitle,
+            description: updatedDescription
+        }).then(() => {
+            setMyArticles(prev =>
+                prev.map(item =>
+                    item._id === editModal.article._id
+                        ? { ...item, title: updatedTitle, description: updatedDescription }
+                        : item
                 )
             );
-
-            alert("Article updated successfully");
-            closeEditModal();
-        } catch (error) {
-            alert("Failed to update article: " + error.message);
-        }
+            setEditModal({ open: false, article: null });
+            Swal.fire("Updated!", "Your article has been updated.", "success");
+        }).catch(() => {
+            Swal.fire("Error!", "Failed to update article.", "error");
+        });
     };
-
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this article?")) {
-            try {
-                await axios.delete(`http://localhost:5000/articles/${id}`);
-                setArticles((prev) => prev.filter((a) => a._id !== id));
-            } catch {
-                alert("Failed to delete article.");
-            }
-        }
-    };
-
-    if (authLoading || loading)
-        return (
-            <p className="text-center mt-10 text-green-700 font-semibold">
-                Loading articles...
-            </p>
-        );
-
-    if (error)
-        return (
-            <p className="text-center mt-10 text-red-600 font-semibold">{error}</p>
-        );
-
-    if (articles.length === 0)
-        return <NoArticlesBanner />;
 
     return (
-        <div className="w-11/12 mx-auto my-10">
-            <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">
-                My Articles
-            </h2>
+        <div className="p-4 max-w-full">
+            <h2 className="text-2xl font-bold mb-6 text-center sm:text-left">My Articles</h2>
 
-            <div className="overflow-x-auto rounded-lg shadow-lg">
-                <table className="min-w-full bg-white border border-green-200">
+            {/* --- TABLE FOR DESKTOP AND LARGE SCREENS --- */}
+            <div className="hidden lg:block overflow-x-auto rounded-lg border border-green-300">
+                <table className="table-auto w-full min-w-[700px] border-collapse border border-green-300 text-sm sm:text-base">
                     <thead className="bg-green-100 text-green-800">
                         <tr>
-                            <th className="py-3 px-4 border border-green-200">#</th>
-                            <th className="py-3 px-4 border border-green-200 text-left">Title</th>
-                            <th className="py-3 px-4 border border-green-200">Status</th>
-                            <th className="py-3 px-4 border border-green-200">Premium</th>
-                            <th className="py-3 px-4 border border-green-200">Update</th>
-                            <th className="py-3 px-4 border border-green-200">Delete</th>
+                            <th className="border border-green-300 px-3 py-2">#</th>
+                            <th className="border border-green-300 px-3 py-2">Title</th>
+                            <th className="border border-green-300 px-3 py-2">Status</th>
+                            <th className="border border-green-300 px-3 py-2">Premium</th>
+                            <th className="border border-green-300 px-3 py-2">Details</th>
+                            <th className="border border-green-300 px-3 py-2">Reason</th>
+                            <th className="border border-green-300 px-3 py-2">Update</th>
+                            <th className="border border-green-300 px-3 py-2">Delete</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        {articles.map((article, idx) => (
-                            <tr
-                                key={article._id}
-                                className={`${idx % 2 === 0 ? "bg-green-50" : "bg-green-100"
-                                    } hover:bg-green-200 transition`}
-                            >
-                                <td className="py-2 px-4 border border-green-200 text-center">
-                                    {idx + 1}
+                        {myArticles.map((article, index) => (
+                            <tr key={article._id} className="text-center border border-green-200">
+                                <td className="border border-green-200 px-3 py-2">{index + 1}</td>
+                                <td className="border border-green-200 px-3 py-2">{article.title}</td>
+                                <td className="border border-green-200 px-3 py-2 capitalize">{article.status}</td>
+                                <td className="border border-green-200 px-3 py-2">{article.isPremium ? "Yes" : "No"}</td>
+                                <td className="border border-green-200 px-3 py-2">
+                                    <Link to={`/articles/${article._id}`}>
+                                        <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition whitespace-nowrap">
+                                            Details
+                                        </button>
+                                    </Link>
                                 </td>
-
-                                <td className="py-2 px-4 border border-green-200 max-w-xs truncate">
-                                    {article.title}
+                                <td className="border border-green-200 px-3 py-2">
+                                    {article.status === "declined" ? (
+                                        article.declineReason ? (
+                                            <button
+                                                onClick={() => setReasonModal({ open: true, reason: article.declineReason })}
+                                                className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700 transition whitespace-nowrap"
+                                            >
+                                                Reason
+                                            </button>
+                                        ) : (
+                                            <span className="text-red-500 italic">No reason provided</span>
+                                        )
+                                    ) : null}
                                 </td>
-
-                                <td className="py-2 px-4 border border-green-200 text-center font-semibold">
-                                    {article.status === "approved" ? (
-                                        <span className="text-green-700">Approved</span>
-                                    ) : article.status === "declined" ? (
-                                        <span className="text-red-600">Declined</span>
-                                    ) : (
-                                        <span className="text-yellow-600">Pending</span>
-                                    )}
-                                </td>
-
-                                <td className="py-2 px-4 border border-green-200 text-center font-semibold">
-                                    {article.isPremium ? (
-                                        <span className="text-green-700">Yes</span>
-                                    ) : (
-                                        <span className="text-gray-600">No</span>
-                                    )}
-                                </td>
-
-                                <td className="py-2 px-4 border border-green-200 text-center">
+                                <td className="border border-green-200 px-3 py-2">
                                     <button
-                                        onClick={() => openEditModal(article)}
-                                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+                                        onClick={() => {
+                                            setEditModal({ open: true, article });
+                                            setUpdatedTitle(article.title);
+                                            setUpdatedDescription(article.description);
+                                        }}
+                                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition whitespace-nowrap"
                                     >
                                         Update
                                     </button>
                                 </td>
-
-                                <td className="py-2 px-4 border border-green-200 text-center">
+                                <td className="border border-green-200 px-3 py-2">
                                     <button
                                         onClick={() => handleDelete(article._id)}
-                                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition whitespace-nowrap"
                                     >
                                         Delete
                                     </button>
@@ -206,101 +134,159 @@ const MyArticles = () => {
                 </table>
             </div>
 
-            {editModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 max-w-xl w-full shadow-lg relative">
-                        <h3 className="text-xl font-semibold text-green-800 mb-4 text-center">
-                            Update Article
-                        </h3>
-                        <form onSubmit={handleSubmit(onUpdateSubmit)} className="space-y-5">
-                            <input
-                                type="text"
-                                placeholder="Title"
-                                className="input input-bordered w-full"
-                                {...register("title", { required: "Title is required" })}
-                            />
-                            {errors.title && (
-                                <p className="text-red-600">{errors.title.message}</p>
-                            )}
-
-                            <textarea
-                                placeholder="Short Description"
-                                className="textarea textarea-bordered w-full"
-                                {...register("description", {
-                                    required: "Description is required",
-                                })}
-                            />
-                            {errors.description && (
-                                <p className="text-red-600">{errors.description.message}</p>
-                            )}
-
-                            <textarea
-                                placeholder="Long Description (optional)"
-                                className="textarea textarea-bordered w-full"
-                                {...register("longDescription")}
-                            />
-
-                            <select
-                                className="input input-bordered w-full"
-                                {...register("publisher", { required: "Publisher is required" })}
-                                defaultValue=""
+            {/* --- CARD/LIST FOR MOBILE & TABLET --- */}
+            <div className="block lg:hidden space-y-4">
+                {myArticles.map((article, index) => (
+                    <div
+                        key={article._id}
+                        className="bg-white border border-green-300 rounded-lg p-4 shadow"
+                    >
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="font-semibold text-lg truncate max-w-[70%]">{article.title}</h3>
+                            <span
+                                className={`text-sm font-semibold px-2 py-1 rounded ${article.isPremium ? 'bg-yellow-300 text-yellow-900' : 'bg-green-100 text-green-700'
+                                    }`}
                             >
-                                <option value="" disabled>
-                                    Select Publisher
-                                </option>
-                                {publishers.map((pub) => (
-                                    <option key={pub._id} value={pub._id}>
-                                        {pub.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.publisher && (
-                                <p className="text-red-600">{errors.publisher.message}</p>
+                                {article.isPremium ? 'Premium' : 'Free'}
+                            </span>
+                        </div>
+
+                        <p className="mb-1 text-gray-700 capitalize">
+                            <strong>Status:</strong> {article.status}
+                        </p>
+                        <p className="mb-2 text-gray-700">
+                            <strong>Premium:</strong> {article.isPremium ? "Yes" : "No"}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-3">
+                            <Link to={`/articles/${article._id}`}>
+                                <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition w-full sm:w-auto">
+                                    Details
+                                </button>
+                            </Link>
+
+                            {article.status === "declined" && (
+                                article.declineReason ? (
+                                    <button
+                                        onClick={() => setReasonModal({ open: true, reason: article.declineReason })}
+                                        className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700 transition w-full sm:w-auto"
+                                    >
+                                        Reason
+                                    </button>
+                                ) : (
+                                    <span className="text-red-500 italic text-sm w-full sm:w-auto">No reason provided</span>
+                                )
                             )}
 
+                            <button
+                                onClick={() => {
+                                    setEditModal({ open: true, article });
+                                    setUpdatedTitle(article.title);
+                                    setUpdatedDescription(article.description);
+                                }}
+                                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition w-full sm:w-auto"
+                            >
+                                Update
+                            </button>
+
+                            <button
+                                onClick={() => handleDelete(article._id)}
+                                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition w-full sm:w-auto"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Edit Modal */}
+            {editModal.open && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white w-full max-w-md md:max-w-lg p-6 rounded-2xl shadow-xl relative overflow-auto max-h-[90vh]">
+                        {/* Header */}
+                        <div className="flex items-center mb-4">
+                            <svg
+                                className="w-6 h-6 text-green-600 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                            </svg>
+                            <h2 className="text-xl font-bold text-gray-800">Update Article</h2>
+                        </div>
+
+                        {/* Inputs */}
+                        <div className="space-y-3">
                             <input
                                 type="text"
-                                placeholder="Tags (comma separated)"
-                                className="input input-bordered w-full"
-                                {...register("tags", { required: "At least one tag is required" })}
+                                value={updatedTitle}
+                                onChange={(e) => setUpdatedTitle(e.target.value)}
+                                placeholder="Article Title"
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition"
                             />
-                            {errors.tags && (
-                                <p className="text-red-600">{errors.tags.message}</p>
-                            )}
-
-                            <input
-                                type="text"
-                                placeholder="Image URL"
-                                className="input input-bordered w-full"
-                                {...register("imageUrl", { required: "Image URL is required" })}
+                            <textarea
+                                value={updatedDescription}
+                                onChange={(e) => setUpdatedDescription(e.target.value)}
+                                placeholder="Article Description"
+                                className="w-full p-2 border border-gray-300 rounded-lg h-24 resize-none focus:outline-none focus:ring-2 focus:ring-green-400 transition"
                             />
-                            {errors.imageUrl && (
-                                <p className="text-red-600">{errors.imageUrl.message}</p>
-                            )}
+                        </div>
 
-                            <div className="flex items-center gap-2">
-                                <input type="checkbox" {...register("isPremium")} />
-                                <label>Premium Article</label>
-                            </div>
+                        {/* Buttons */}
+                        <div className="flex flex-col sm:flex-row justify-end mt-5 space-y-2 sm:space-y-0 sm:space-x-2 flex-wrap">
+                            <button
+                                onClick={() => setEditModal({ open: false, article: null })}
+                                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition w-full sm:w-auto"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleUpdate}
+                                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition w-full sm:w-auto"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                            <div className="flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={closeEditModal}
-                                    className="btn btn-outline px-6"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="btn bg-green-700 text-white px-6 hover:bg-green-800"
-                                >
-                                    {isSubmitting ? "Updating..." : "Update Article"}
-                                </button>
-                            </div>
-                        </form>
+            {/* Decline Reason Modal */}
+            {reasonModal.open && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white w-full max-w-md md:max-w-lg p-6 rounded-2xl shadow-xl relative overflow-auto max-h-[90vh]">
+                        <div className="flex items-center mb-4">
+                            <svg
+                                className="w-6 h-6 text-yellow-600 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 9v2m0 4h.01m-.01-10a9 9 0 100 18 9 9 0 000-18z"
+                                />
+                            </svg>
+                            <h3 className="text-lg font-bold text-yellow-600">Decline Reason</h3>
+                        </div>
+                        <p className="text-gray-700 whitespace-pre-line">{reasonModal.reason}</p>
+                        <div className="mt-4 text-right">
+                            <button
+                                onClick={() => setReasonModal({ open: false, reason: "" })}
+                                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import useAuth from "../../Hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-
-const imgbbApiKey = import.meta.env.VITE_IMGBB_API_KEY;
+import Swal from "sweetalert2";
+import Loader from "../../Pages/Shared/Loader/Loader";
 
 const Profile = () => {
     const { user } = useAuth();
@@ -31,11 +31,22 @@ const Profile = () => {
             return await axios.put(`http://localhost:5000/users/${encodedEmail}`, data);
         },
         onSuccess: () => {
-            alert("Profile updated successfully!");
+            Swal.fire({
+                icon: "success",
+                title: "Profile updated!",
+                toast: true,
+                position: "top-end",
+                timer: 1500,
+                showConfirmButton: false,
+            });
             queryClient.invalidateQueries(["userProfile", user.email]);
         },
         onError: () => {
-            alert("Failed to update profile.");
+            Swal.fire({
+                icon: "error",
+                title: "Failed to update profile",
+                text: "Please try again later.",
+            });
         },
     });
 
@@ -46,11 +57,20 @@ const Profile = () => {
         if (data.image && data.image[0]) {
             const formData = new FormData();
             formData.append("image", data.image[0]);
-            const imgbbRes = await axios.post(
-                `https://api.imgbb.com/1/upload?key=${imgbbApiKey}`,
-                formData
-            );
-            imageUrl = imgbbRes.data.data.url;
+            try {
+                const imgbbRes = await axios.post(
+                    `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+                    formData
+                );
+                imageUrl = imgbbRes.data.data.url;
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Image upload failed",
+                    text: "Please try again with a valid image.",
+                });
+                return;
+            }
         }
 
         const updatedData = {
@@ -62,7 +82,7 @@ const Profile = () => {
         updateProfile.mutate(updatedData);
     };
 
-    if (isLoading) return <p className="text-center mt-10">Loading profile...</p>;
+    if (isLoading) return <Loader></Loader>;
 
     return (
         <div className="max-w-xl mx-auto mt-12 bg-white shadow-md p-8 rounded-2xl border">

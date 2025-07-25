@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../../Hooks/useAuth";
-import { Helmet } from "react-helmet";
-
-
-// ✅ adjust based on your auth setup (replace with your context)
+import { Helmet } from "react-helmet-async";
+import Swal from "sweetalert2";
 
 const AddArticle = () => {
-    const { user } = useAuth(); // ✅ Get logged-in user email
+    const { user } = useAuth(); // Get logged-in user email
     const [publishers, setPublishers] = useState([]);
 
     const {
@@ -26,7 +24,11 @@ const AddArticle = () => {
 
     const onSubmit = async (data) => {
         if (!user?.email) {
-            alert("You must be logged in to submit an article.");
+            Swal.fire({
+                icon: "error",
+                title: "Login Required",
+                text: "You must be logged in to submit an article.",
+            });
             return;
         }
 
@@ -39,7 +41,7 @@ const AddArticle = () => {
                 tags: data.tags ? data.tags.split(",").map((t) => t.trim()) : [],
                 image: data.imageUrl,
                 isPremium: data.isPremium || false,
-                authorEmail: user.email, // ✅ required for backend
+                authorEmail: user.email, // required for backend
             };
 
             console.log("Submitting article:", article);
@@ -55,23 +57,39 @@ const AddArticle = () => {
                 throw new Error(errorData.message || "Submission failed");
             }
 
-            alert("Article submitted! Waiting for admin approval.");
+            Swal.fire({
+                icon: "success",
+                title: "Article Submitted",
+                text: "Waiting for admin approval.",
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: "top-end",
+            });
             reset();
         } catch (err) {
-            alert("Submission failed: " + err.message);
+            Swal.fire({
+                icon: "error",
+                title: "Submission Failed",
+                text: err.message,
+            });
         }
     };
 
     return (
         <>
             <Helmet>
-                <title>Add Article </title>
-                <meta name="description" content="Submit your articles and share knowledge on BookiQ." />
+                <title>Add Article</title>
+                <meta
+                    name="description"
+                    content="Submit your articles and share knowledge on BookiQ."
+                />
             </Helmet>
 
-
             <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-10">
-                <h2 className="text-2xl font-bold text-green-800 mb-6">Submit a New Article</h2>
+                <h2 className="text-2xl font-bold text-green-800 mb-6">
+                    Submit a New Article
+                </h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <input
@@ -80,14 +98,18 @@ const AddArticle = () => {
                         className="input input-bordered w-full"
                         {...register("title", { required: "Title is required" })}
                     />
-                    {errors.title && <p className="text-red-600">{errors.title.message}</p>}
+                    {errors.title && (
+                        <p className="text-red-600">{errors.title.message}</p>
+                    )}
 
                     <textarea
                         placeholder="Short Description"
                         className="textarea textarea-bordered w-full"
                         {...register("description", { required: "Description is required" })}
                     />
-                    {errors.description && <p className="text-red-600">{errors.description.message}</p>}
+                    {errors.description && (
+                        <p className="text-red-600">{errors.description.message}</p>
+                    )}
 
                     <textarea
                         placeholder="Long Description (optional)"
@@ -100,14 +122,18 @@ const AddArticle = () => {
                         {...register("publisher", { required: "Publisher is required" })}
                         defaultValue=""
                     >
-                        <option value="" disabled>Select Publisher</option>
+                        <option value="" disabled>
+                            Select Publisher
+                        </option>
                         {publishers.map((pub) => (
                             <option key={pub._id} value={pub._id}>
                                 {pub.name}
                             </option>
                         ))}
                     </select>
-                    {errors.publisher && <p className="text-red-600">{errors.publisher.message}</p>}
+                    {errors.publisher && (
+                        <p className="text-red-600">{errors.publisher.message}</p>
+                    )}
 
                     <input
                         type="text"
@@ -123,7 +149,9 @@ const AddArticle = () => {
                         className="input input-bordered w-full"
                         {...register("imageUrl", { required: "Image URL is required" })}
                     />
-                    {errors.imageUrl && <p className="text-red-600">{errors.imageUrl.message}</p>}
+                    {errors.imageUrl && (
+                        <p className="text-red-600">{errors.imageUrl.message}</p>
+                    )}
 
                     <div className="flex items-center gap-2">
                         <input type="checkbox" {...register("isPremium")} />
@@ -138,8 +166,8 @@ const AddArticle = () => {
                         {isSubmitting ? "Submitting..." : "Submit Article"}
                     </button>
                 </form>
-            </div></>
-
+            </div>
+        </>
     );
 };
 

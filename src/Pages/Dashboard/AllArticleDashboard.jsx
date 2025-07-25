@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import Loader from "../Shared/Loader/Loader";
 
 const AllArticleDashboard = () => {
     const [articles, setArticles] = useState([]);
@@ -80,7 +81,7 @@ const AllArticleDashboard = () => {
     };
 
 
-    if (loading) return <p className="text-center mt-10">Loading...</p>;
+    if (loading) return <Loader></Loader>;
 
     return (
         <div className="max-w-7xl mx-auto p-4">
