@@ -81,7 +81,7 @@ export default function AllArticles() {
         <>
             <Helmet>
                 <title>All Articles</title>
-                <meta name="description" content="Submit your articles and share knowledge on BookiQ." />
+                <meta name="description" content="Submit your articles and share knowledge on Newsly." />
             </Helmet>
 
             <div className="max-w-7xl mx-auto px-4 py-10">

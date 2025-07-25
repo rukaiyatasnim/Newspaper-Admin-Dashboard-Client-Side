@@ -18,29 +18,28 @@ const Register = () => {
 
     const onSubmit = async (data) => {
         try {
-            // 1️⃣ Create user in Firebase Auth
-            const userCredential = await createUser(data.email, data.password);
+            // Pass name to createUser so Firebase displayName is set
+            const userCredential = await createUser(data.email, data.password, data.name);
             const user = userCredential.user;
 
-            // 2️⃣ Save user info to your backend
-            await axios.post('http://localhost:5000/users', {
-                name: data.name,
-                email: data.email,
-                photo: data.photo,
-                role: 'user',
-            });
+            // No need to call backend again here to save user if you have saveUserToDB inside createUser / AuthProvider
+            // But if you still want, you can do:
+            // await axios.post('http://localhost:5000/users', {
+            //     name: data.name,
+            //     email: data.email,
+            //     photo: data.photo,
+            //     role: 'user',
+            // });
 
-            // ✅ Show SweetAlert and navigate to home after confirmation
             Swal.fire({
                 icon: 'success',
                 title: 'Registered Successfully!',
-                text: 'Welcome to BookiQ Newspaper!',
+                text: 'Welcome to Newsly Newspaper!',
                 confirmButtonColor: '#16a34a',
                 confirmButtonText: 'Go to Home',
             }).then(() => {
                 navigate('/');
             });
-
         } catch (error) {
             console.error(error);
             Swal.fire({
@@ -51,6 +50,7 @@ const Register = () => {
             });
         }
     };
+
 
     return (
         <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">

@@ -81,7 +81,7 @@ const AddArticle = () => {
                 <title>Add Article</title>
                 <meta
                     name="description"
-                    content="Submit your articles and share knowledge on BookiQ."
+                    content="Submit your articles and share knowledge on Newsly."
                 />
             </Helmet>
 

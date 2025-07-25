@@ -4,8 +4,13 @@ import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2';
 import SocialLogin from '../SocialLogin/SocialLogin';
 import useAuth from '../../../Hooks/useAuth';
+import { useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 const Login = () => {
+    const [showPassword, setShowPassword] = useState(false);
+
     const navigate = useNavigate();
     const { signIn } = useAuth();
 
@@ -22,7 +27,7 @@ const Login = () => {
             Swal.fire({
                 icon: 'success',
                 title: 'Login Successful!',
-                text: 'Welcome back to BookiQ Newspaper!',
+                text: 'Welcome back to Newsly Newspaper!',
                 confirmButtonColor: '#16a34a',
                 confirmButtonText: 'Go to Home',
             }).then(() => {
@@ -63,13 +68,25 @@ const Login = () => {
                         <label className="label">
                             <span className="label-text text-green-700">Password</span>
                         </label>
-                        <input
-                            type="password"
-                            placeholder="Enter your password"
-                            className={`input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400 ${errors.password ? 'border-red-500' : ''}`}
-                            {...register("password", { required: "Password is required" })}
-                        />
-                        {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
+
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                className={`input input-bordered w-full border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400 pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                                {...register("password", { required: "Password is required" })}
+                            />
+                            <span
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 cursor-pointer"
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
+
+                        {errors.password && (
+                            <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+                        )}
 
                         <label className="label">
                             <Link to="/forgot-password" className="label-text-alt text-green-600 hover:underline">
@@ -77,6 +94,7 @@ const Login = () => {
                             </Link>
                         </label>
                     </div>
+
 
                     <button type="submit" className="btn bg-green-600 text-white hover:bg-green-700 w-full">
                         Login
