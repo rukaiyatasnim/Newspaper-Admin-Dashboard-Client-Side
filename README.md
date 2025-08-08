@@ -5,13 +5,12 @@
 Newsly is a modern, responsive newspaper website built with React, Node.js, Express, MongoDB, and Firebase. It offers trending news articles, premium subscription content, and a seamless user experience for both normal and premium users. Admins can manage publishers, articles, and users through an intuitive dashboard.
 
 ## Live Site
-
-[ live site URL here]
+https://newspp-37d15.web.app/
 
 ## Admin Credentials
 
-- **Email:** admin@example.com  
-- **Password:** AdminPassword123
+- **Email:** admin@gmail.com  
+- **Password:** admin@gmail.com
 
 ---
 
