@@ -12,9 +12,16 @@ https://newspp-37d15.web.app/
 - **Email:** Admin123@gmail.com  
 - **Password:** Admin123@gmail.com
 
-##  Screenshot
+## 📸 Screenshots
 
-![Newsly Homepage](https://i.ibb.co/84df4PVX/screencapture-newspp-37d15-web-app-2025-08-08-16-38-43.png)
+### 1. All Articles Page
+![All Articles](https://i.ibb.co/GvJZkvqH/Screenshot-2025-08-08-165051.png)
+
+### 2. My Posted Tasks
+![My Posted Tasks](https://i.ibb.co/nqGgnbkj/Screenshot-2025-08-08-165107.png)
+
+### 3. Admin Dashboard - All Articles
+![Admin Dashboard](https://i.ibb.co/Kp175w9L/Screenshot-2025-08-08-165138.png)
 
 ---
 
