@@ -9,8 +9,8 @@ https://newspp-37d15.web.app/
 
 ## Admin Credentials
 
-- **Email:** admin@gmail.com  
-- **Password:** admin@gmail.com
+- **Email:** Admin123@gmail.com  
+- **Password:** Admin123@gmail.com
 
 ---
 
