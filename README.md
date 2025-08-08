@@ -12,6 +12,10 @@ https://newspp-37d15.web.app/
 - **Email:** Admin123@gmail.com  
 - **Password:** Admin123@gmail.com
 
+##  Screenshot
+
+![Newsly Homepage](https://i.ibb.co/84df4PVX/screencapture-newspp-37d15-web-app-2025-08-08-16-38-43.png)
+
 ---
 
 ## Key Features
